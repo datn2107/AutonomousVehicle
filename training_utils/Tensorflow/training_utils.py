@@ -1,7 +1,12 @@
 import tensorflow as tf
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+
 from models.research.object_detection.utils import config_util
 from models.research.object_detection.builders import model_builder
+
 
 def load_model_from_config(model_config_path, num_class):
     '''
@@ -37,14 +42,15 @@ def load_checkpoint_for_model(model, checkpoint_path, first_time=True):
         model: Model that ready to be use 
     ''' #
     ## Load checkpoint of necessary part
-    # define checkpoint for model
-    tmp_box_predictor_checkpoint = tf.train.Checkpoint(_base_tower_layers_for_heads=model._box_predictor._base_tower_layers_for_heads,
-                                                       _box_prediction_head=model._box_predictor._box_prediction_head)
-    tmp_model_checkpoint = tf.train.Checkpoint(_feature_extractor=model._feature_extractor,
-                                               _box_predictor=tmp_box_predictor_checkpoint)
     if first_time:
+        # only load box_predictor and feature_extractor part
+        tmp_box_predictor_checkpoint = tf.train.Checkpoint(_base_tower_layers_for_heads=model._box_predictor._base_tower_layers_for_heads,
+                                                           _box_prediction_head=model._box_predictor._box_prediction_head)
+        tmp_model_checkpoint = tf.train.Checkpoint(_feature_extractor=model._feature_extractor,
+                                                   _box_predictor=tmp_box_predictor_checkpoint)
         checkpoint = tf.train.Checkpoint(model=tmp_model_checkpoint)
     else:
+        # load all part of model
         checkpoint = tf.train.Checkpoint(model=model)
     # restore checkpoint for model
     checkpoint.restore(checkpoint_path)
@@ -74,40 +80,6 @@ def define_fine_tune_list(model):
             to_fine_tune.append(layer)
 
     return to_fine_tune
-
-
-@tf.function(experimental_relax_shapes=True)
-def evaluate_loss(image_batch,
-                  groundtruth_boxes_list,
-                  groundtruth_classes_list,
-                  model):
-    '''
-    Evaluate model by validation test
-    
-    :param val_image_dataset: A dataset shape [1, height, width, 3] contain batch Tensor of type tf.float32.
-    :param val_list_bboxes: A list of Tensors of shape [N_i, 4] representing groundtruth boxes for each image in the batch.
-    :param val_list_classes: A list of Tensors of shape [N_i, num_classes] representing groundtruth class of each box for each image in the batch. 
-    
-    :return: 
-        Total loss on validation dataset
-    ''' #
-
-    true_shape_tensor = tf.constant(1 * [[640, 640, 3]], dtype=tf.int32)
-
-    # Provide groundtruth
-    model.provide_groundtruth(groundtruth_boxes_list=groundtruth_boxes_list,
-                              groundtruth_classes_list=groundtruth_classes_list)
-
-    # Preprocess the images
-    preprocessed_image = model.preprocess(image_batch)[0]
-    # Make a prediction
-    prediction_dict = model.predict(preprocessed_image, true_shape_tensor)
-
-    # Calculate the total loss (sum of both losses)
-    losses_dict = model.loss(prediction_dict, true_shape_tensor)
-    total_loss = losses_dict['Loss/localization_loss'] + losses_dict['Loss/classification_loss']
-
-    return total_loss
 
 
 @tf.function(experimental_relax_shapes=True)
@@ -151,6 +123,41 @@ def train_step_fn(images_batch,
                                   groundtruth_classes_list=[])
 
     return total_loss
+
+
+@tf.function(experimental_relax_shapes=True)
+def evaluate_loss(image_batch,
+                  groundtruth_boxes_list,
+                  groundtruth_classes_list,
+                  model):
+    '''
+    Evaluate model by validation test
+    
+    :param val_image_dataset: A dataset shape [1, height, width, 3] contain batch Tensor of type tf.float32.
+    :param val_list_bboxes: A list of Tensors of shape [N_i, 4] representing groundtruth boxes for each image in the batch.
+    :param val_list_classes: A list of Tensors of shape [N_i, num_classes] representing groundtruth class of each box for each image in the batch. 
+    
+    :return: 
+        Total loss on validation dataset
+    ''' #
+
+    true_shape_tensor = tf.constant(1 * [[640, 640, 3]], dtype=tf.int32)
+
+    # Provide groundtruth
+    model.provide_groundtruth(groundtruth_boxes_list=groundtruth_boxes_list,
+                              groundtruth_classes_list=groundtruth_classes_list)
+
+    # Preprocess the images
+    preprocessed_image = model.preprocess(image_batch)[0]
+    # Make a prediction
+    prediction_dict = model.predict(preprocessed_image, true_shape_tensor)
+
+    # Calculate the total loss (sum of both losses)
+    losses_dict = model.loss(prediction_dict, true_shape_tensor)
+    total_loss = losses_dict['Loss/localization_loss'] + losses_dict['Loss/classification_loss']
+
+    return total_loss
+
 
 
 

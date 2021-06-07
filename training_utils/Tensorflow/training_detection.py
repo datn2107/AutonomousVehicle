@@ -4,16 +4,20 @@ import numpy as np
 import argparse
 import os
 
-from data_utils import load_data_from_dataframe
-from data_utils import split_dataframe_for_training_validation_testing
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+
+from data_utils.Tensorflow.load_dataset import load_data_from_dataframe
+from data_utils.data_utils import split_dataframe_for_training_validation_testing
 from training_utils import load_model_from_config
 from training_utils import load_checkpoint_for_model
 from training_utils import define_fine_tune_list
 from training_utils import train_step_fn
 from training_utils import evaluate_loss
 
-'''
-Create args to feed argument from terminal
+
+''' Create args to feed argument from terminal '''
 parser = argparse.ArgumentParser()
 # Folder Image Path argument
 parser.add_argument('--fip', type=str, help='Folder Image Path')
@@ -25,12 +29,11 @@ parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
 parser.add_argument('--mcp', type=str, help='Path to model config')
 # Model checkpoint path
 parser.add_argument('--cp', type=str, help='Number class of each object')
-'''
+
 
 def main_tensorflow():
 
     ''' Take the values from args '''
-    '''
     args = parser.parse_args()
     folder_image_path = args.fip
     folder_label_path = args.flp
@@ -42,16 +45,15 @@ def main_tensorflow():
     checkpoint_path = args.cp
     #learning_rate = args.lr
     #num_epoch = args.ne
-    '''
 
-    folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
-    folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
+    #folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
+    #folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
     height = 640
     width = 640
     batch_size = 8
     num_class = 13
-    model_config_path = r'D:\Autonomous Driving\Source Code\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    checkpoint_path = r'D:\Autonomous Driving\Source Code\checkpoint\ckpt-0'
+    #model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
+    #checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint\ckpt-37'
     learning_rate = 0.01
     num_epoch = 100
 
@@ -81,7 +83,7 @@ def main_tensorflow():
 
     ''' Prepare model '''
     model = load_model_from_config(model_config_path, num_class)
-    model = load_checkpoint_for_model(model, checkpoint_path)
+    model = load_checkpoint_for_model(model, checkpoint_path, first_time=False)
     to_fine_tune = define_fine_tune_list(model)
     optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
 
@@ -110,8 +112,6 @@ def main_tensorflow():
 
             train_loss += total_loss.numpy()
 
-            if (num_batch > 2000):
-                break
 
         print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
               + ', train_loss=' + str(train_loss/num_batch), flush=True)

@@ -1,7 +1,10 @@
 import pandas as pd
 import tensorflow as tf
-import os
 from sklearn.model_selection import train_test_split
+
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 
 def split_dataframe_for_training_validation_testing(folder_label_path):

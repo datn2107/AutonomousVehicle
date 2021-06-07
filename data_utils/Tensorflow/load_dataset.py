@@ -1,7 +1,11 @@
 import pandas as pd
 import tensorflow as tf
 
-from SourceCode.data_utils.data_utils import load_list_information_from_dataframe
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+
+from data_utils.data_utils import load_list_information_from_dataframe
 
 
 def load_image(height, width):
