@@ -3,7 +3,7 @@ import tensorflow as tf
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-print(sys.path)
+
 from models.research.object_detection.utils import config_util
 from models.research.object_detection.builders import model_builder
 

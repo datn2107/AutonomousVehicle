@@ -1,4 +1,6 @@
 import tensorflow as tf
+import cv2
+import numpy as np
 
 
 @tf.function(experimental_relax_shapes=True)
@@ -18,3 +20,8 @@ def detect(model, image_tensor):
 	detections = model.postprocess(prediction_dict, shapes)
 
 	return detections
+
+
+def visualize_detection(image, boxes, classes):
+	img = image.numpy()
+	print(img)
