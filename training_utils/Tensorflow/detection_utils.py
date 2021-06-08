@@ -1,5 +1,6 @@
 import tensorflow as tf
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -22,6 +23,16 @@ def detect(model, image_tensor):
 	return detections
 
 
-def visualize_detection(image, boxes, classes):
-	img = image.numpy()
-	print(img)
+def visualize_detection(image, boxes):
+	image = image.astype(int)
+	for box in boxes:
+		x_min = int(box[0]*image.shape[0])
+		y_min = int(box[1]*image.shape[1])
+		x_max = int(box[2]*image.shape[0])
+		y_max = int(box[3]*image.shape[1])
+
+		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+
+	plt.imshow(image)
+	plt.show()
+	plt.savefig(r"D:\Autonomous Driving\SourceCode\test.png")

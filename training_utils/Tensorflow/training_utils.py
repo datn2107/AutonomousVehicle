@@ -73,7 +73,9 @@ def define_fine_tune_list(model):
     ''' #
     to_fine_tune = []
     prefixes_to_train = ['WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalClassHead',
-                         'WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalBoxHead']
+                         'WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalBoxHead',
+                         'WeightSharedConvolutionalBoxPredictor/BoxPredictionTower',
+                         'WeightSharedConvolutionalBoxPredictor/ClassPredictionTower']
 
     for layer in model.trainable_variables:
         if any(layer.name.startswith(prefix) for prefix in prefixes_to_train):

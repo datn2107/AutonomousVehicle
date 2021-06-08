@@ -1,12 +1,11 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+
 import tensorflow as tf
 import pandas as pd
 import numpy as np
 import argparse
-import os
-
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 from data_utils.Tensorflow.load_dataset import load_data_from_dataframe
 from data_utils.data_utils import split_dataframe_for_training_validation_testing
@@ -33,8 +32,7 @@ parser.add_argument('--mcp', type=str, help='Path to model config')
 parser.add_argument('--cp', type=str, help='Number class of each object')
 
 def main_tensorflow():
-
-    ''' Take the values from args '''
+    ''' Take the values from args ''' #
     args = parser.parse_args()
     folder_image_path = args.fip
     folder_label_path = args.flp
@@ -59,17 +57,20 @@ def main_tensorflow():
     learning_rate = 0.01
     num_epoch = 100
 
+
     ''' Prepare Data '''
     ## Load data from dataframe for training, validation and testing
     #(df_train, df_val, df_test) = split_dataframe_for_training_validation_testing(folder_label_path)
     df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
     df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
+
     (train_image_dataset, train_list_boxes, train_list_classes) = load_data_from_dataframe(dataframe=df_train,
                                                                                            folder_image_path=os.path.join(folder_image_path, 'train'),
                                                                                            height=height, width=width,
                                                                                            batch_size=batch_size,
                                                                                            num_class=num_class)
+
 
     # (val_image_dataset, val_list_boxes, val_list_classes) = load_data_from_dataframe(dataframe=df_val,
     #                                                                                  folder_image_path=os.path.join(folder_image_path, 'train'),
@@ -87,7 +88,7 @@ def main_tensorflow():
     ''' Prepare model '''
     model = load_model_from_config(model_config_path, num_class)
     model = load_checkpoint_for_model(model, checkpoint_path, first_time=False)
-    to_fine_tune = model.trainable_variables # define_fine_tune_list(model)
+    to_fine_tune = define_fine_tune_list(model)
     optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
 
 
@@ -125,14 +126,19 @@ def main_tensorflow():
 
     print('Done fine-tuning!')
 
+
     ''' Detection '''
     for image in test_image_dataset:
         detections = detect(model, image)
-        print(detections['detection_boxes'].numpy())
-        print(detections['detection_classes'].numpy())
+        detections_boxes = tf.squeeze(detections['detection_boxes']).numpy()
+        detection_scores = tf.squeeze(detections['detection_scores']).numpy()
 
-        visualize_detection(tf.squeeze(image).numpy(), test_list_boxes[0], test_list_classes[0])
-        break
+        list_boxes = []
+        for id in range(detection_scores.shape[0]):
+            if (detection_scores[id] > 0.4):
+                list_boxes.append(detections_boxes[id])
+
+        visualize_detection(tf.squeeze(image).numpy(), list_boxes)
 
 
 if __name__ == "__main__":
