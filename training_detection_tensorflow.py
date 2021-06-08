@@ -51,7 +51,7 @@ def main_tensorflow():
     #folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
     #folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
     #model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    #checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint\ckpt-37'
+    #checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
     #batch_size = 8
     height = 640
     width = 640

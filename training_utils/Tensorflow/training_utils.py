@@ -3,7 +3,7 @@ import tensorflow as tf
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-
+print(sys.path)
 from models.research.object_detection.utils import config_util
 from models.research.object_detection.builders import model_builder
 
@@ -53,7 +53,7 @@ def load_checkpoint_for_model(model, checkpoint_path, first_time=True):
         # load all part of model
         checkpoint = tf.train.Checkpoint(model=model)
     # restore checkpoint for model
-    checkpoint.restore(checkpoint_path)
+    checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
     ## Pass dummy matrix to model for loading weight
     tmp_image, tmp_shapes = model.preprocess(tf.zeros([1, 640, 640, 3]))
