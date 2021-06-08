@@ -10,11 +10,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 from data_utils.Tensorflow.load_dataset import load_data_from_dataframe
 from data_utils.data_utils import split_dataframe_for_training_validation_testing
-from training_utils import load_model_from_config
-from training_utils import load_checkpoint_for_model
-from training_utils import define_fine_tune_list
-from training_utils import train_step_fn
-from training_utils import evaluate_loss
+from training_utils.Tensorflow.training_utils import load_model_from_config
+from training_utils.Tensorflow.training_utils import load_checkpoint_for_model
+from training_utils.Tensorflow.training_utils import define_fine_tune_list
+from training_utils.Tensorflow.training_utils import train_step_fn
+from training_utils.Tensorflow.training_utils import evaluate_loss
+from training_utils.Tensorflow.detection_utils import detect
 
 
 ''' Create args to feed argument from terminal '''
@@ -37,23 +38,24 @@ def main_tensorflow():
     args = parser.parse_args()
     folder_image_path = args.fip
     folder_label_path = args.flp
-    #height = args.h
-    #width = args.w
-    batch_size = args.bs
-    #num_class = args.nc
     model_config_path = args.mcp
     checkpoint_path = args.cp
+    batch_size = args.bs
+    #height = args.h
+    #width = args.w
+    #num_class = args.nc
     #learning_rate = args.lr
     #num_epoch = args.ne
 
+
     #folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
     #folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
-    height = 640
-    width = 640
-    batch_size = 8
-    num_class = 13
     #model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
     #checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint\ckpt-37'
+    #batch_size = 8
+    height = 640
+    width = 640
+    num_class = 13
     learning_rate = 0.01
     num_epoch = 100
 
@@ -120,6 +122,13 @@ def main_tensorflow():
         print('Save checkpoint at ' + save_path, flush=True)
 
     print('Done fine-tuning!')
+
+    ''' Detection '''
+    for image in test_image_dataset:
+        detections = detect(model, image)
+        print(detections['detection_boxes'].numpy())
+        print(detections['detection_classes'].numpy())
+        break
 
 
 if __name__ == "__main__":

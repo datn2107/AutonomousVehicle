@@ -157,8 +157,3 @@ def evaluate_loss(image_batch,
     total_loss = losses_dict['Loss/localization_loss'] + losses_dict['Loss/classification_loss']
 
     return total_loss
-
-
-
-
-
