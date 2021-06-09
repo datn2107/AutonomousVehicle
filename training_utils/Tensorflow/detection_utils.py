@@ -36,3 +36,4 @@ def visualize_detection(image, boxes):
 	print(image)
 	plt.imshow(image)
 	plt.show()
+    plt.savefig('/content/foo.png')
