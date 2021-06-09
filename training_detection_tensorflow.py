@@ -140,7 +140,7 @@ if __name__ == "__main__":
     height = 640
     width = 640
     num_class = 13
-    learning_rate = 0.01
+    learning_rate = 0.04
     num_epoch = 30
 
     '''

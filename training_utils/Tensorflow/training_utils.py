@@ -55,6 +55,7 @@ def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=Tru
         # load all part of model
         checkpoint = tf.train.Checkpoint(model=model)
     # restore checkpoint for model
+    print("Load Checkpoint from: " + checkpoint_path)
     checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
     ## Pass dummy matrix to model for loading weight
