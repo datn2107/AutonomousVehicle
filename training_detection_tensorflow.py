@@ -68,8 +68,7 @@ def detection_by_lower_api(model, test_image_dataset):
 
         list_boxes = []
         for id in range(detection_scores.shape[0]):
-            if (detection_scores[id] > 0.4):
-                list_boxes.append(detections_boxes[id])
+            list_boxes.append(detections_boxes[id])
 
         visualize_detection(tf.squeeze(image).numpy(), list_boxes)
         break
@@ -136,13 +135,13 @@ if __name__ == "__main__":
     # folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
     # folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
     # model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    # checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
+    # checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint_ssd_resnet50_tensorflow'
     # batch_size = 8
     height = 640
     width = 640
     num_class = 13
     learning_rate = 0.01
-    num_epoch = 100
+    num_epoch = 30
 
     '''
     python SourceCode/training_detection_tensorflow.py --fip 'D:\Autonomous Driving\Data\Object Detection\image' --flp 'D:\Autonomous Driving\Data\Object Detection/label' --mcp 'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config' --cp 'D:\Autonomous Driving\SourceCode\checkpoint' --bs 4
