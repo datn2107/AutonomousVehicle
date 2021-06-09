@@ -21,7 +21,7 @@ from training_utils.Tensorflow.detection_utils import visualize_detection
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
     ''' Prepare model '''
     model = load_model_from_config(model_config_path, num_class)
-    model = load_checkpoint_for_model(model, checkpoint_path, first_time=True)
+    model = load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=True)
     to_fine_tune = define_fine_tune_list(model)
     optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
 

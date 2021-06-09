@@ -31,7 +31,7 @@ def load_model_from_config(model_config_path, num_class):
     return model
 
 
-def load_checkpoint_for_model(model, checkpoint_path, first_time=True):
+def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=True):
     '''
     Load checkpoint to model 
     
@@ -56,7 +56,7 @@ def load_checkpoint_for_model(model, checkpoint_path, first_time=True):
     checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
     ## Pass dummy matrix to model for loading weight
-    tmp_image, tmp_shapes = model.preprocess(tf.zeros([4, 640, 640, 3]))
+    tmp_image, tmp_shapes = model.preprocess(tf.zeros([batch_size, 640, 640, 3]))
     tmp_prediction_dict = model.predict(tmp_image, tmp_shapes)
     tmp_detections = model.postprocess(tmp_prediction_dict, tmp_shapes)
 
@@ -73,9 +73,7 @@ def define_fine_tune_list(model):
     ''' #
     to_fine_tune = []
     prefixes_to_train = ['WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalClassHead',
-                         'WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalBoxHead',
-                         'WeightSharedConvolutionalBoxPredictor/BoxPredictionTower',
-                         'WeightSharedConvolutionalBoxPredictor/ClassPredictionTower']
+                         'WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalBoxHead']
 
     for layer in model.trainable_variables:
         if any(layer.name.startswith(prefix) for prefix in prefixes_to_train):
