@@ -65,11 +65,11 @@ def main_tensorflow():
     df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
 
-    (train_image_dataset, train_list_boxes, train_list_classes) = load_data_from_dataframe(dataframe=df_train,
-                                                                                           folder_image_path=os.path.join(folder_image_path, 'train'),
-                                                                                           height=height, width=width,
-                                                                                           batch_size=batch_size,
-                                                                                           num_class=num_class)
+    # (train_image_dataset, train_list_boxes, train_list_classes) = load_data_from_dataframe(dataframe=df_train,
+    #                                                                                        folder_image_path=os.path.join(folder_image_path, 'train'),
+    #                                                                                        height=height, width=width,
+    #                                                                                        batch_size=batch_size,
+    #                                                                                        num_class=num_class)
 
 
     # (val_image_dataset, val_list_boxes, val_list_classes) = load_data_from_dataframe(dataframe=df_val,
@@ -93,38 +93,38 @@ def main_tensorflow():
 
 
     ''' Start Training'''
-    print('Start fine-tuning!', flush=True)
-
-    checkpoint = tf.train.Checkpoint(root=model)
-    manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
-    for epoch in range(num_epoch):
-        train_loss = 0
-        num_batch = 0
-        for image_batch in train_image_dataset:
-            # Get the ground truth
-            groundtruth_boxes_list = [train_list_boxes[num_batch*batch_size+id] for id in range(batch_size)]
-            groundtruth_classes_list = [train_list_classes[num_batch*batch_size+id] for id in range(batch_size)]
-            num_batch = num_batch + 1
-            # Training step (forward pass + backwards pass)
-            total_loss = train_step_fn(image_batch,
-                                       groundtruth_boxes_list,
-                                       groundtruth_classes_list,
-                                       model,
-                                       optimizer,
-                                       to_fine_tune)
-            # Sum the losses
-            train_loss += total_loss.numpy()
-            if num_batch % 5000 == 0:
-                print('batch ' + str(num_batch)
-                      + ', loss = ' + str(train_loss / num_batch), flush=True)
-        # Display loss
-        print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
-              + ', train_loss=' + str(train_loss / num_batch), flush=True)
-        # Save path after each epoch
-        save_path = manager.save()
-        print('Save checkpoint at ' + save_path, flush=True)
-
-    print('Done fine-tuning!')
+    # print('Start fine-tuning!', flush=True)
+    #
+    # checkpoint = tf.train.Checkpoint(root=model)
+    # manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
+    # for epoch in range(num_epoch):
+    #     train_loss = 0
+    #     num_batch = 0
+    #     for image_batch in train_image_dataset:
+    #         # Get the ground truth
+    #         groundtruth_boxes_list = [train_list_boxes[num_batch*batch_size+id] for id in range(batch_size)]
+    #         groundtruth_classes_list = [train_list_classes[num_batch*batch_size+id] for id in range(batch_size)]
+    #         num_batch = num_batch + 1
+    #         # Training step (forward pass + backwards pass)
+    #         total_loss = train_step_fn(image_batch,
+    #                                    groundtruth_boxes_list,
+    #                                    groundtruth_classes_list,
+    #                                    model,
+    #                                    optimizer,
+    #                                    to_fine_tune)
+    #         # Sum the losses
+    #         train_loss += total_loss.numpy()
+    #         if num_batch % 5000 == 0:
+    #             print('batch ' + str(num_batch)
+    #                   + ', loss = ' + str(train_loss / num_batch), flush=True)
+    #     # Display loss
+    #     print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
+    #           + ', train_loss=' + str(train_loss / num_batch), flush=True)
+    #     # Save path after each epoch
+    #     save_path = manager.save()
+    #     print('Save checkpoint at ' + save_path, flush=True)
+    #
+    # print('Done fine-tuning!')
 
 
     ''' Detection '''
@@ -139,6 +139,7 @@ def main_tensorflow():
                 list_boxes.append(detections_boxes[id])
 
         visualize_detection(tf.squeeze(image).numpy(), list_boxes)
+        break
 
 
 if __name__ == "__main__":

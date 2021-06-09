@@ -33,6 +33,6 @@ def visualize_detection(image, boxes):
 
 		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
 
+	print(image)
 	plt.imshow(image)
 	plt.show()
-	plt.savefig(r"D:\Autonomous Driving\SourceCode\test.png")
