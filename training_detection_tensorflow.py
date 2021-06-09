@@ -21,13 +21,13 @@ from training_utils.Tensorflow.detection_utils import visualize_detection
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
     ''' Prepare model '''
     model = load_model_from_config(model_config_path, num_class)
-    model = load_checkpoint_for_model(model, checkpoint_path, first_time=False)
+    model = load_checkpoint_for_model(model, checkpoint_path, first_time=True)
     to_fine_tune = define_fine_tune_list(model)
     optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
 
     ''' Start Training'''
     print('Start fine-tuning!', flush=True)
-    checkpoint = tf.train.Checkpoint(root=model)
+    checkpoint = tf.train.Checkpoint()
     manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
     for epoch in range(num_epoch):
         train_loss = 0
@@ -96,6 +96,7 @@ def tensorflow_main():
                                                                                         height=height, width=width,
                                                                                         batch_size=1,
                                                                                         num_class=num_class)
+
     '''Training'''
     model = training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes)
 
@@ -103,40 +104,40 @@ def tensorflow_main():
     detection_by_lower_api(model, test_image_dataset)
 
 
-''' Create args to feed argument from terminal '''
-parser = argparse.ArgumentParser()
-# Folder Image Path argument
-parser.add_argument('--fip', type=str, help='Folder Image Path')
-# Folder Label Path argument
-parser.add_argument('--flp', type=str, help='Folder Label Path')
-# Batch Size argument
-parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
-# Model config path
-parser.add_argument('--mcp', type=str, help='Path to model config')
-# Model checkpoint path
-parser.add_argument('--cp', type=str, help='Number class of each object')
 
 if __name__ == "__main__":
-
+    ''' Create args to feed argument from terminal '''
+    # parser = argparse.ArgumentParser()
+    # # Folder Image Path argument
+    # parser.add_argument('--fip', type=str, help='Folder Image Path')
+    # # Folder Label Path argument
+    # parser.add_argument('--flp', type=str, help='Folder Label Path')
+    # # Batch Size argument
+    # parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
+    # # Model config path
+    # parser.add_argument('--mcp', type=str, help='Path to model config')
+    # # Model checkpoint path
+    # parser.add_argument('--cp', type=str, help='Number class of each object')
 
     ''' Take the values from args '''
-    args = parser.parse_args()
-    folder_image_path = args.fip
-    folder_label_path = args.flp
-    model_config_path = args.mcp
-    checkpoint_path = args.cp
-    batch_size = args.bs
+    # args = parser.parse_args()
+    # folder_image_path = args.fip
+    # folder_label_path = args.flp
+    # model_config_path = args.mcp
+    # checkpoint_path = args.cp
+    # batch_size = args.bs
     # height = args.h
     # width = args.w
     # num_class = args.nc
     # learning_rate = args.lr
     # num_epoch = args.ne
 
-    # folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
-    # folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
-    # model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    # checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
-    # batch_size = 8
+    '''Initialize for debug in local environment'''
+    folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
+    folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
+    model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
+    checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
+    batch_size = 8
     height = 640
     width = 640
     num_class = 13

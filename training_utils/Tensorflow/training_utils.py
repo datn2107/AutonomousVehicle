@@ -56,7 +56,7 @@ def load_checkpoint_for_model(model, checkpoint_path, first_time=True):
     checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
     ## Pass dummy matrix to model for loading weight
-    tmp_image, tmp_shapes = model.preprocess(tf.zeros([1, 640, 640, 3]))
+    tmp_image, tmp_shapes = model.preprocess(tf.zeros([4, 640, 640, 3]))
     tmp_prediction_dict = model.predict(tmp_image, tmp_shapes)
     tmp_detections = model.postprocess(tmp_prediction_dict, tmp_shapes)
 
