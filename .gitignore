@@ -1,5 +1,5 @@
 models
-checkpoint
+checkpoint_ssd_resnet50_tensorflow
 Test.py
 __pycache__
 .vscode

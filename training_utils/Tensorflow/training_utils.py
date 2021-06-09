@@ -37,6 +37,8 @@ def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=Tru
     
     :param model: Model that you want to upload checkpoint  
     :param checkpoint_path: Path to checkpoint file 
+    :param batch_size: Use to declare dummy image 
+    :param first_time: == True if load weight from origin model (model train by Tensorflow)
     
     :return: 
         model: Model that ready to be use 
