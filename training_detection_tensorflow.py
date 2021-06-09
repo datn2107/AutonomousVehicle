@@ -107,25 +107,25 @@ def tensorflow_main():
 
 if __name__ == "__main__":
     ''' Create args to feed argument from terminal '''
-    # parser = argparse.ArgumentParser()
-    # # Folder Image Path argument
-    # parser.add_argument('--fip', type=str, help='Folder Image Path')
-    # # Folder Label Path argument
-    # parser.add_argument('--flp', type=str, help='Folder Label Path')
-    # # Batch Size argument
-    # parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
-    # # Model config path
-    # parser.add_argument('--mcp', type=str, help='Path to model config')
-    # # Model checkpoint path
-    # parser.add_argument('--cp', type=str, help='Number class of each object')
+    parser = argparse.ArgumentParser()
+    # Folder Image Path argument
+    parser.add_argument('--fip', type=str, help='Folder Image Path')
+    # Folder Label Path argument
+    parser.add_argument('--flp', type=str, help='Folder Label Path')
+    # Batch Size argument
+    parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
+    # Model config path
+    parser.add_argument('--mcp', type=str, help='Path to model config')
+    # Model checkpoint path
+    parser.add_argument('--cp', type=str, help='Number class of each object')
 
     ''' Take the values from args '''
-    # args = parser.parse_args()
-    # folder_image_path = args.fip
-    # folder_label_path = args.flp
-    # model_config_path = args.mcp
-    # checkpoint_path = args.cp
-    # batch_size = args.bs
+    args = parser.parse_args()
+    folder_image_path = args.fip
+    folder_label_path = args.flp
+    model_config_path = args.mcp
+    checkpoint_path = args.cp
+    batch_size = args.bs
     # height = args.h
     # width = args.w
     # num_class = args.nc
@@ -133,11 +133,11 @@ if __name__ == "__main__":
     # num_epoch = args.ne
 
     '''Initialize for debug in local environment'''
-    folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
-    folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
-    model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
-    batch_size = 8
+    # folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
+    # folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
+    # model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
+    # checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint'
+    # batch_size = 8
     height = 640
     width = 640
     num_class = 13
