@@ -46,7 +46,7 @@ class LoadDataset(torch.utils.data.Dataset):
 		target["iscrowd"] = iscrowd
 
 		if self.transforms is not None:
-			img, target = self.transforms(image, target)
+			image, target = self.transforms(image, target)
 
 		return image, target
 

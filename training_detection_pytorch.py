@@ -28,11 +28,12 @@ def main():
 	(train_list_image_path, train_list_boxes, train_list_classes) = load_list_information_from_dataframe(df_train, os.path.join(folder_image_path, 'train'), label_off_set=0)
 	(test_list_image_path, test_list_boxes, test_list_classes) = load_list_information_from_dataframe(df_test, os.path.join(folder_image_path, 'test'), label_off_set=0)
 
-	train_dataset = LoadDataset(train_list_image_path, train_list_boxes, train_list_classes, torchvision.transforms.ToTensor())
+	transforms =  torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
+	train_dataset = LoadDataset(train_list_image_path, train_list_boxes, train_list_classes, transforms)
 	train_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
-	test_dataset = LoadDataset(test_list_image_path, test_list_boxes, test_list_classes, torchvision.transforms.ToTensor())
-	train_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
+	test_dataset = LoadDataset(test_list_image_path, test_list_boxes, test_list_classes, transforms)
+	test_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
 
 	model = load_model(num_class=13)
@@ -45,7 +46,7 @@ def main():
 	for t in range(epochs):
 		print(f"Epoch {t + 1}\n-------------------------------")
 		train_loop(train_data, model, loss_fn, optimizer)
-		test_loop(train_data, model, loss_fn)
+		test_loop(test_data, model, loss_fn)
 	print("Done!")
 
 
