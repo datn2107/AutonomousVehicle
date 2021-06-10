@@ -58,7 +58,6 @@ class CreateDataset(torch.utils.data.Dataset):
 def my_collate(batch):
 	images = [item[0] for item in batch]
 	targets = [item[1] for item in batch]
-	targets = torch.LongTensor(targets)
 	return [images, targets]
 
 def load_dataset(df_train, folder_image_path, batch_size):
