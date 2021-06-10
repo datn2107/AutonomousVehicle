@@ -1,5 +1,6 @@
 models
 checkpoint_ssd_resnet50_tensorflow
+checkpoint_fasterrcnn_resmet50_pytorch
 Test.py
 __pycache__
 .vscode

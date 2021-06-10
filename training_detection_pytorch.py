@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
-from vision.references.detection.engine import train_one_epoch
+from vision.references.detection.engine import train_one_epoch, evaluate
 
 
 import torch
@@ -35,8 +35,8 @@ def main():
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")
-		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=10)
-	# test_loop(test_dataloader, model, loss_fn)
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=2000)
+		evaluate(model, test_dataset, device=device)
 	print("Done!")
 
 
@@ -53,12 +53,16 @@ if __name__ == '__main__':
 	# Batch Size argument
 	parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
 	parser.set_defaults(bs=8)
+	# Checkpoint Path argument
+	parser.add_argument('--cp', type=str, help='Save Checkpoint Path')
+	parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_fasterrcnn_resmet50_pytorch')
 
 	''' Take the values from args '''
 	args = parser.parse_args()
 	folder_image_path = args.fip
 	folder_label_path = args.flp
 	batch_size = args.bs
+	checkpoint_path = args.cp
 
 
 	main()
