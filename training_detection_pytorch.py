@@ -35,7 +35,7 @@ def main():
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")
-		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=2000)
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 		evaluate(model, test_dataset, device=device)
 	print("Done!")
 
