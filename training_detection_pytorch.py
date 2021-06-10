@@ -4,8 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
-from training_utils.Pytorch.training_utils import train_loop
-# from training_utils.Pytorch.training_utils import test_loop
+from vision.references.detection.engine import train_one_epoch
+
 
 import torch
 import torch.utils.data
@@ -30,20 +30,13 @@ def main():
 	model = load_model(num_class=13)
 	model.to(device)
 
-	for image, label in train_dataset:
-		print(image, label)
-		print(model(image))
-		break
-
-
 	epochs = 30
-	loss_fn = nn.CrossEntropyLoss()
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")
-		train_loop(train_dataset, model, loss_fn, optimizer)
-		# test_loop(test_dataloader, model, loss_fn)
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=10)
+	# test_loop(test_dataloader, model, loss_fn)
 	print("Done!")
 
 

@@ -17,8 +17,7 @@ def load_model(num_class):
 def train_loop(dataset, model, loss_fn, optimizer):
 	for batch, (image, label) in enumerate(dataset):
 		# Compute prediction and loss
-		prediction = model(image)
-		loss = loss_fn(prediction, label)
+		loss = model(image, label)
 
 		# Backpropagation
 		optimizer.zero_grad()

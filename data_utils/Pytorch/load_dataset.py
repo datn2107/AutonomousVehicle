@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 from data_utils.data_utils import load_list_information_from_dataframe
+from vision.references.detection.utils import collate_fn
 
 import torch
 import torch.utils.data
@@ -55,10 +56,6 @@ class CreateDataset(torch.utils.data.Dataset):
 	def __len__(self):
 		return len(self.list_image_path)
 
-def my_collate(batch):
-	images = [item[0] for item in batch]
-	targets = [item[1] for item in batch]
-	return [images, targets]
 
 def load_dataset(df_train, folder_image_path, batch_size):
 	(train_list_image_path, train_list_boxes, train_list_classes) = load_list_information_from_dataframe(df_train, folder_image_path, label_off_set=0)
@@ -66,7 +63,7 @@ def load_dataset(df_train, folder_image_path, batch_size):
 	train_dataset = CreateDataset(train_list_image_path, train_list_boxes, train_list_classes,
 								  torchvision.transforms.ToTensor())
 	train_dataset = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
-												shuffle=True, num_workers=10, collate_fn=my_collate)
+												shuffle=True, num_workers=10, collate_fn=collate_fn)
 
 	return train_dataset
 
