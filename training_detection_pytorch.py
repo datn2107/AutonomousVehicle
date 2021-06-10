@@ -2,8 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from data_utils.data_utils import load_list_information_from_dataframe
-from data_utils.Pytorch.load_dataset import LoadDataset
+from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
 from training_utils.Pytorch.training_utils import train_loop
 # from training_utils.Pytorch.training_utils import test_loop
@@ -25,16 +24,8 @@ def main():
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
-	(train_list_image_path, train_list_boxes, train_list_classes) = load_list_information_from_dataframe(df_train, os.path.join(folder_image_path, 'train'), label_off_set=0)
-	(test_list_image_path, test_list_boxes, test_list_classes) = load_list_information_from_dataframe(df_test, os.path.join(folder_image_path, 'test'), label_off_set=0)
-
-	train_dataset = LoadDataset(train_list_image_path, train_list_boxes, train_list_classes, torchvision.transforms.ToTensor())
-	train_dataset = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
-											 shuffle=True, num_workers=10)
-	test_dataset = LoadDataset(test_list_image_path, test_list_boxes, test_list_classes, torchvision.transforms.ToTensor())
-	test_dataset = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, drop_last=True,
-											 shuffle=True, num_workers=10)
-
+	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size)
 
 	model = load_model(num_class=13)
 	model.to(device)
@@ -42,6 +33,7 @@ def main():
 	for image, label in train_dataset:
 		print(model(image))
 		break
+
 
 	epochs = 30
 	loss_fn = nn.CrossEntropyLoss()
