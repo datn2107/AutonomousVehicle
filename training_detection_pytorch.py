@@ -5,8 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from data_utils.data_utils import load_list_information_from_dataframe
 from data_utils.Pytorch.load_dataset import LoadDataset
 from training_utils.Pytorch.training_utils import load_model
-from training_utils.Pytorch.training_utils import train_loop
-from training_utils.Pytorch.training_utils import test_loop
+# from training_utils.Pytorch.training_utils import train_loop
+# from training_utils.Pytorch.training_utils import test_loop
 
 import torch
 import torch.utils.data
@@ -36,17 +36,21 @@ def main():
 	test_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
 
+	for x, y, z in train_data:
+		print(x,y,z)
+		break
+
 	model = load_model(num_class=13)
 	model.to(device)
 
 	epochs = 30
 	loss_fn = nn.CrossEntropyLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=0.0005)
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
 
 	for t in range(epochs):
 		print(f"Epoch {t + 1}\n-------------------------------")
-		train_loop(train_data, model, loss_fn, optimizer)
-		test_loop(test_data, model, loss_fn)
+		# train_loop(train_data, model, loss_fn, optimizer)
+		# test_loop(test_data, model, loss_fn)
 	print("Done!")
 
 
