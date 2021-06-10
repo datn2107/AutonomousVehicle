@@ -31,6 +31,7 @@ def main():
 	model.to(device)
 
 	for image, label in train_dataset:
+		print(image, label)
 		print(model(image))
 		break
 
