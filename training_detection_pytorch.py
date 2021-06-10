@@ -31,7 +31,7 @@ def main():
 	model.to(device)
 
 	epochs = 30
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")
