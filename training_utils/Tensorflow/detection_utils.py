@@ -31,7 +31,6 @@ def visualize_detection(image, boxes):
 		x_max = int(box[2]*image.shape[0])
 		y_max = int(box[3]*image.shape[1])
 
-		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+
 
 	print(image)
-	cv2.imwrite('filename.jpeg', image)

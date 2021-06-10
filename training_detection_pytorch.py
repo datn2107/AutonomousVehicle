@@ -3,69 +3,51 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from data_utils.data_utils import load_list_information_from_dataframe
+from data_utils.Pytorch.load_dataset import LoadDataset
+from training_utils.Pytorch.training_utils import load_model
+from training_utils.Pytorch.training_utils import train_loop
+from training_utils.Pytorch.training_utils import test_loop
 
 import torch
+import torch.utils.data
+import torchvision.utils
+import torchvision.transforms
+from torch import nn
 import pandas as pd
 import numpy as np
 import argparse
 from PIL import Image
 
 
-class LoadDataset(object):
-	def __init__(self, list_image_path, list_boxes, list_classes, transforms):
-		self.list_image_path = list_image_path
-		self.list_boxes = list_boxes
-		self.list_classes = list_classes
-		self.transfroms = transforms
-
-	def resize(self, box, width, height):
-		box[0] = box[0]*width
-		box[1] = box[1]*height
-		box[2] = box[2]*width
-		box[3] = box[3]*height
-		return box
-
-	def __getitem__(self, index):
-		# Load Image
-		image_path = self.list_image_path[index]
-		image = Image.open(image_path).convert('RGB')
-		image_id = torch.tensor([index])
-
-		num_obj = len(self.list_boxes[index])
-		width, height = image.size
-		# Load Bounding Box (return to origin size)
-		boxes = [self.resize(box, width, height) for box in self.list_boxes[index]]
-		boxes = torch.as_tensor(boxes, dtype=torch.float32)
-		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
-		# Load Label of Box
-		labels = torch.as_tensor(self.list_classes[index], dtype=torch.int64)
-
-		iscrowd = torch.zeros((num_obj,), dtype=torch.int64)
-		target = []
-		target["boxes"] = boxes
-		target["labels"] = labels
-		target["image_id"] = image_id
-		target["area"] = area
-		target["iscrowd"] = iscrowd
-
-		if self.transforms is not None:
-			img, target = self.transforms(image, target)
-
-		return image, target
-
-	def __len__(self):
-		return len(self.list_image_path)
-
-
-
 def main():
+	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
 	(train_list_image_path, train_list_boxes, train_list_classes) = load_list_information_from_dataframe(df_train, os.path.join(folder_image_path, 'train'), label_off_set=0)
 	(test_list_image_path, test_list_boxes, test_list_classes) = load_list_information_from_dataframe(df_test, os.path.join(folder_image_path, 'test'), label_off_set=0)
 
-	print(train_list_image_path[0], train_list_boxes[0], train_list_classes[0])
+	train_dataset = LoadDataset(train_list_image_path, train_list_boxes, train_list_classes, torchvision.transforms.ToTensor())
+	train_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
+											 shuffle=True, num_workers=10)
+	test_dataset = LoadDataset(test_list_image_path, test_list_boxes, test_list_classes, torchvision.transforms.ToTensor())
+	train_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
+											 shuffle=True, num_workers=10)
+
+	model = load_model(num_class=13)
+	model.to(device)
+
+	epochs = 30
+	loss_fn = nn.CrossEntropyLoss()
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=0.0005)
+
+	for t in range(epochs):
+		print(f"Epoch {t + 1}\n-------------------------------")
+		train_loop(train_data, model, loss_fn, optimizer)
+		test_loop(train_data, model, loss_fn)
+	print("Done!")
+
 
 
 if __name__ == '__main__':
