@@ -36,9 +36,7 @@ def main():
 	test_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
 
-	for x, y, z in train_data:
-		print(x,y,z)
-		break
+	print(train_dataset)
 
 	model = load_model(num_class=13)
 	model.to(device)
