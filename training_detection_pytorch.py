@@ -39,6 +39,10 @@ def main():
 	model = load_model(num_class=13)
 	model.to(device)
 
+	for image, label in train_dataset:
+		print(model(image))
+		break
+
 	epochs = 30
 	loss_fn = nn.CrossEntropyLoss()
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
