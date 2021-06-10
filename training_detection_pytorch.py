@@ -5,14 +5,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from data_utils.data_utils import load_list_information_from_dataframe
 from data_utils.Pytorch.load_dataset import LoadDataset
 from training_utils.Pytorch.training_utils import load_model
-# from training_utils.Pytorch.training_utils import train_loop
+from training_utils.Pytorch.training_utils import train_loop
 # from training_utils.Pytorch.training_utils import test_loop
 
 import torch
 import torch.utils.data
 import torchvision.utils
 import torchvision.transforms
-from torchvision import step
 from torch import nn
 import pandas as pd
 import numpy as np
@@ -30,27 +29,25 @@ def main():
 	(test_list_image_path, test_list_boxes, test_list_classes) = load_list_information_from_dataframe(df_test, os.path.join(folder_image_path, 'test'), label_off_set=0)
 
 	train_dataset = LoadDataset(train_list_image_path, train_list_boxes, train_list_classes, torchvision.transforms.ToTensor())
-	train_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
+	train_dataset = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
 	test_dataset = LoadDataset(test_list_image_path, test_list_boxes, test_list_classes, torchvision.transforms.ToTensor())
-	test_data = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
+	test_dataset = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, drop_last=True,
 											 shuffle=True, num_workers=10)
 
-	for i, x in enumerate(train_dataset):
-		print(i, x)
 
-	# model = load_model(num_class=13)
-	# model.to(device)
+	model = load_model(num_class=13)
+	model.to(device)
 
 	epochs = 30
 	loss_fn = nn.CrossEntropyLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
-	# for epoch in range(epochs):
-	# 	# train for one epoch, printing every 10 iterations
-	# 	train_one_epoch(model, optimizer, train_data, device, epoch, print_freq=10)
-	# 	# evaluate on the test dataset
-	# 	evaluate(model, test_data, device=device)
+	for epoch in range(epochs):
+		print(f"Epoch {epoch + 1}\n-------------------------------")
+		train_loop(train_dataset, model, loss_fn, optimizer)
+		# test_loop(test_dataloader, model, loss_fn)
+	print("Done!")
 
 
 

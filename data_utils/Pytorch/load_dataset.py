@@ -4,6 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 import torch
 import torch.utils.data
+import torchvision.transforms
 from PIL import Image
 
 
@@ -46,7 +47,7 @@ class LoadDataset(torch.utils.data.Dataset):
 		target["iscrowd"] = iscrowd
 
 		if self.transforms is not None:
-			image, target = self.transforms(image, target)
+			image, target = (self.transforms(image), target)
 
 		return image, target
 

@@ -14,11 +14,11 @@ def load_model(num_class):
 	return model
 
 
-def train_loop(dataloader, model, loss_fn, optimizer):
-	for batch,(image, label, ) in enumerate(dataloader):
+def train_loop(dataset, model, loss_fn, optimizer):
+	for batch, (image, label) in enumerate(dataset):
 		# Compute prediction and loss
-		pred = model(X)
-		loss = loss_fn(pred, y)
+		prediction = model(image)
+		loss = loss_fn(prediction, label)
 
 		# Backpropagation
 		optimizer.zero_grad()
@@ -29,7 +29,6 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 			loss, current = loss.item(), batch * len(X)
 			print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-#
 # def test_loop(dataloader, model, loss_fn):
 # 	size = len(dataloader.dataset)
 # 	test_loss, correct = 0, 0
