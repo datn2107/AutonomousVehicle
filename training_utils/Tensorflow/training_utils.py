@@ -31,7 +31,7 @@ def load_model_from_config(model_config_path, num_class):
     return model
 
 
-def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=True):
+def load_checkpoint_for_model(model, checkpoint_path, batch_size, initiation_model=True):
     '''
     Load checkpoint to model 
     
@@ -44,7 +44,7 @@ def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=Tru
         model: Model that ready to be use 
     ''' #
     ## Load checkpoint of necessary part
-    if first_time:
+    if initiation_model:
         # only load box_predictor and feature_extractor part
         tmp_box_predictor_checkpoint = tf.train.Checkpoint(_base_tower_layers_for_heads=model._box_predictor._base_tower_layers_for_heads,
                                                            _box_prediction_head=model._box_predictor._box_prediction_head)
@@ -55,7 +55,6 @@ def load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=Tru
         # load all part of model
         checkpoint = tf.train.Checkpoint(model=model)
     # restore checkpoint for model
-    print("Load Checkpoint from: " + checkpoint_path)
     checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
     ## Pass dummy matrix to model for loading weight

@@ -40,7 +40,7 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
     :return
         list_image_path: list of image path 
         list_classes: list of classes of all bbox in each image
-        list_bboxes: list of bounding boxes in each image   
+        list_boxes: list of bounding boxes in each image   
     '''  #
 
     ## Clean Dataframe
@@ -64,10 +64,10 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
     list_classes = dataframe.groupby(['name'])['id_category'].apply(list)
     list_classes = list_classes.values.tolist()
     # group all bounding box by specific image into one list
-    list_bboxes = dataframe.groupby(['name'])['bbox'].apply(list)
-    list_bboxes = list_bboxes.values.tolist()
+    list_boxes = dataframe.groupby(['name'])['bbox'].apply(list)
+    list_boxes = list_boxes.values.tolist()
 
-    return (list_image_path, list_bboxes, list_classes)
+    return (list_image_path, list_boxes, list_classes)
 
 
 if __name__ == "__main__":

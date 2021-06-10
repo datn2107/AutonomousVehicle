@@ -21,41 +21,41 @@ from training_utils.Tensorflow.detection_utils import visualize_detection
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
     ''' Prepare model '''
     model = load_model_from_config(model_config_path, num_class)
-    model = load_checkpoint_for_model(model, checkpoint_path, batch_size, first_time=True)
+    model = load_checkpoint_for_model(model, checkpoint_path, batch_size, initiation_model=initiation_model)
     to_fine_tune = define_fine_tune_list(model)
     optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate, momentum=0.9)
 
-    ''' Start Training'''
-    print('Start fine-tuning!', flush=True)
-    checkpoint = tf.train.Checkpoint()
-    manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
-    for epoch in range(num_epoch):
-        train_loss = 0
-        num_batch = 0
-        for image_batch in train_image_dataset:
-            # Get the ground truth
-            groundtruth_boxes_list = [train_list_boxes[num_batch*batch_size+id] for id in range(batch_size)]
-            groundtruth_classes_list = [train_list_classes[num_batch*batch_size+id] for id in range(batch_size)]
-            num_batch = num_batch + 1
-            # Training step (forward pass + backwards pass)
-            total_loss = train_step_fn(image_batch,
-                                       groundtruth_boxes_list,
-                                       groundtruth_classes_list,
-                                       model,
-                                       optimizer,
-                                       to_fine_tune)
-            # Sum the losses
-            train_loss += total_loss.numpy()
-            if num_batch % 5000 == 0:
-                print('batch ' + str(num_batch)
-                      + ', loss = ' + str(train_loss / num_batch), flush=True)
-        # Display loss
-        print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
-              + ', train_loss=' + str(train_loss / num_batch), flush=True)
-        # Save path after each epoch
-        save_path = manager.save()
-        print('Save checkpoint at ' + save_path, flush=True)
-    print('Done fine-tuning!')
+    # ''' Start Training'''
+    # print('Start fine-tuning!', flush=True)
+    # checkpoint = tf.train.Checkpoint()
+    # manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
+    # for epoch in range(num_epoch):
+    #     train_loss = 0
+    #     num_batch = 0
+    #     for image_batch in train_image_dataset:
+    #         # Get the ground truth
+    #         groundtruth_boxes_list = [train_list_boxes[num_batch*batch_size+id] for id in range(batch_size)]
+    #         groundtruth_classes_list = [train_list_classes[num_batch*batch_size+id] for id in range(batch_size)]
+    #         num_batch = num_batch + 1
+    #         # Training step (forward pass + backwards pass)
+    #         total_loss = train_step_fn(image_batch,
+    #                                    groundtruth_boxes_list,
+    #                                    groundtruth_classes_list,
+    #                                    model,
+    #                                    optimizer,
+    #                                    to_fine_tune)
+    #         # Sum the losses
+    #         train_loss += total_loss.numpy()
+    #         if num_batch % 5000 == 0:
+    #             print('batch ' + str(num_batch)
+    #                   + ', loss = ' + str(train_loss / num_batch), flush=True)
+    #     # Display loss
+    #     print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
+    #           + ', train_loss=' + str(train_loss / num_batch), flush=True)
+    #     # Save path after each epoch
+    #     save_path = manager.save()
+    #     print('Save checkpoint at ' + save_path, flush=True)
+    # print('Done fine-tuning!')
 
     return model
 
@@ -74,7 +74,7 @@ def detection_by_lower_api(model, test_image_dataset):
         break
 
 
-def tensorflow_main():
+def main():
     ''' Prepare Data '''
     ## Load data from dataframe for training, validation and testing
     #(df_train, df_val, df_test) = split_dataframe_for_training_validation_testing(folder_label_path)
@@ -109,14 +109,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Folder Image Path argument
     parser.add_argument('--fip', type=str, help='Folder Image Path')
+    parser.set_defaults(fip=r'D:\Autonomous Driving\Data\Object Detection\image')
     # Folder Label Path argument
     parser.add_argument('--flp', type=str, help='Folder Label Path')
+    parser.set_defaults(flp=r'D:\Autonomous Driving\Data\Object Detection\label')
     # Batch Size argument
     parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
+    parser.set_defaults(bs=8)
     # Model config path
     parser.add_argument('--mcp', type=str, help='Path to model config')
+    parser.set_defaults(mcp=r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config')
     # Model checkpoint path
     parser.add_argument('--cp', type=str, help='Number class of each object')
+    parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_ssd_resnet50_tensorflow')
 
     ''' Take the values from args '''
     args = parser.parse_args()
@@ -125,26 +130,13 @@ if __name__ == "__main__":
     model_config_path = args.mcp
     checkpoint_path = args.cp
     batch_size = args.bs
-    # height = args.h
-    # width = args.w
-    # num_class = args.nc
-    # learning_rate = args.lr
-    # num_epoch = args.ne
 
-    '''Initialize for debug in local environment'''
-    # folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
-    # folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
-    # model_config_path = r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config'
-    # checkpoint_path = r'D:\Autonomous Driving\SourceCode\checkpoint_ssd_resnet50_tensorflow'
-    # batch_size = 8
+    '''Initialize for essensial variable'''
     height = 640
     width = 640
     num_class = 13
     learning_rate = 0.01
     num_epoch = 30
+    initiation_model = True
 
-    '''
-    python SourceCode/training_detection_tensorflow.py --fip 'D:\Autonomous Driving\Data\Object Detection\image' --flp 'D:\Autonomous Driving\Data\Object Detection/label' --mcp 'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config' --cp 'D:\Autonomous Driving\SourceCode\checkpoint' --bs 4
-    '''
-
-    tensorflow_main()
+    main()
