@@ -1,23 +1,19 @@
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+# from google.colab.patches import cv2_imshow
+import cv2
 import numpy as np
-from PIL import Image
 
 def visualize_detection(image, boxes):
 	image = np.reshape(image.astype(float), (720, 1280, 3))
-	image = Image.fromarray(image)
-	fig, ax = plt.subplots()
-	ax.imshow()
 
 	for box in boxes:
-		w, h = image.size
+		w, h = (image.shape[1], image.shape[0])
 		x_min = int(box[0]*w)
 		y_min = int(box[1]*h)
 		x_max = int(box[2]*w)
 		y_max = int(box[3]*h)
-		rect = patches.Rectangle((x_min, y_min), (x_max-x_min), (y_max-y_min), linewidth=1, edgecolor='r', facecolor='none')
-		ax.add_patch(rect)
+		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0,0,255), 1)
 
-	plt.show()
+	#cv2_imshow(image)
+
 
 
