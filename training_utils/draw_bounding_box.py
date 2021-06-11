@@ -2,8 +2,8 @@
 import cv2
 import numpy as np
 
-def visualize_detection(image, boxes):
-	image = np.reshape(image.astype(float), (720, 1280, 3))
+def visualize_detection(image_path, boxes):
+	image = cv2.imread(image_path)
 
 	for box in boxes:
 		w, h = (image.shape[1], image.shape[0])

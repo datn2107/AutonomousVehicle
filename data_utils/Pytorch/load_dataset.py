@@ -35,6 +35,7 @@ class CreateDataset(torch.utils.data.Dataset):
 		width, height = image.size
 		# Load Bounding Box (return to origin size)
 		boxes = [self.resize(box, width, height) for box in self.list_boxes[index]]
+		visualize_detection(image_path, boxes)
 		boxes = torch.as_tensor(boxes, dtype=torch.float32)
 		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
 		# Load Label of Box
@@ -82,5 +83,4 @@ if __name__ == "__main__":
 
 	for (image, label) in test_dataset:
 		print(image[0].numpy(), label[0]['boxes'].numpy())
-		visualize_detection(image[0].numpy(), label[0]['boxes'].numpy())
 		break
