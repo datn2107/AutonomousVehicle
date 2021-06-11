@@ -21,16 +21,3 @@ def detect(model, image_tensor):
 	detections = model.postprocess(prediction_dict, shapes)
 
 	return detections
-
-
-def visualize_detection(image, boxes):
-	image = image.astype(int)
-	for box in boxes:
-		x_min = int(box[0]*image.shape[0])
-		y_min = int(box[1]*image.shape[1])
-		x_max = int(box[2]*image.shape[0])
-		y_max = int(box[3]*image.shape[1])
-
-
-
-	print(image)

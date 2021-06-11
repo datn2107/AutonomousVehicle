@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
+from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_list_information_from_dataframe
 from vision.references.detection.utils import collate_fn
 
@@ -80,5 +81,6 @@ if __name__ == "__main__":
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1)
 
 	for (image, label) in test_dataset:
-		print(image, label)
+		print(image[0].numpy(), label[0]['boxes'].numpy())
+		visualize_detection(image[0].numpy(), label[0]['boxes'].numpy())
 		break
