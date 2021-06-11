@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import numpy as np
 from PIL import Image
 
 def visualize_detection(image, boxes):
-	image = image.astype(float)
+	image = np.reshape(image.astype(float), (720, 1280, 3))
 	image = Image.fromarray(image)
 	fig, ax = plt.subplots()
 	ax.imshow()
