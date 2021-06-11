@@ -37,6 +37,7 @@ def main():
 		print(f"Epoch {epoch + 1}\n-------------------------------")
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 		evaluate(model, test_dataset, device=device)
+		torch.save(model.state_dict(), os.path.join(checkpoint_path, str(epoch + 1) + '.pt'))
 	print("Done!")
 
 

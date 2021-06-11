@@ -67,6 +67,18 @@ def load_dataset(df_train, folder_image_path, batch_size):
 
 	return train_dataset
 
+import pandas as pd
 
 if __name__ == "__main__":
-	pass
+	folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
+	folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
+
+	#df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
+	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+
+	#train_dataset = load_dataset(df_train, os.path.join(folder_image_path, 'train'), 1)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1)
+
+	for (image, label) in test_dataset:
+		print(image, label)
+		break
