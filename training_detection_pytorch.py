@@ -23,13 +23,16 @@ def main():
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size)
 
 	model = load_model(num_class=13)
-	model.torch.load_state_dict(torch.lead(checkpoint_path))
+	model.load_state_dict(torch.load(os.path.join(checkpoint_path, '5.pt')))
 	model.to(device)
 
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
-	
+	for test in test_dataset:
+		predictions = model(test)
+		print(predictions)
+		break
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")

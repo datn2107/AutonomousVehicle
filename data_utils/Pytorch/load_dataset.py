@@ -34,20 +34,22 @@ class CreateDataset(torch.utils.data.Dataset):
 		image = Image.open(image_path).convert('RGB')
 		image_id = torch.tensor([index])
 
-		num_obj = len(self.list_boxes[index])
+		num_object = len(self.list_boxes[index])
 		width, height = image.size
 		# Load Bounding Box (return to origin size)
 		boxes = [self.resize(box, width, height) for box in self.list_boxes[index]]
 		boxes = torch.as_tensor(boxes, dtype=torch.float32)
+		# area of each bouding box
 		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
 		# Load Label of Box
 		labels = torch.as_tensor(self.list_classes[index], dtype=torch.int64)
 
-		iscrowd = torch.zeros((num_obj,), dtype=torch.int64)
+		iscrowd = torch.zeros((num_object,), dtype=torch.int64)
 
 		target = {}
 		target["boxes"] = boxes
 		target["labels"] = labels
+		# addition argument to calculate loss
 		target["image_id"] = image_id
 		target["area"] = area
 		target["iscrowd"] = iscrowd
@@ -62,6 +64,13 @@ class CreateDataset(torch.utils.data.Dataset):
 
 
 def collate_fn(batch):
+	'''
+	Collate list of dataset in to batch 
+
+	:param 
+		
+	
+	''' #
 	return tuple(zip(*batch))
 
 
