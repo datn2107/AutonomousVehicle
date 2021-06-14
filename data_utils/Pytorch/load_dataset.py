@@ -38,7 +38,7 @@ class CreateDataset(torch.utils.data.Dataset):
 		image_id = torch.tensor([index])
 
 		num_object = len(self.list_boxes[index])
-		# Load Bounding Box (return to origin size)
+		# Load Bounding Box
 		boxes = torch.as_tensor(self.list_boxes[index], dtype=torch.float32)
 		# area of each bouding box
 		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
