@@ -9,13 +9,8 @@ from vision.references.detection.engine import train_one_epoch, evaluate
 
 import torch
 import torch.utils.data
-import torchvision.utils
-import torchvision.transforms
-from torch import nn
 import pandas as pd
-import numpy as np
 import argparse
-from PIL import Image
 
 
 def main():
@@ -28,10 +23,13 @@ def main():
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size)
 
 	model = load_model(num_class=13)
+	model.torch.load_state_dict(torch.lead(checkpoint_path))
 	model.to(device)
 
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
+
+	
 
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")

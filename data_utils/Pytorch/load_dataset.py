@@ -4,7 +4,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_list_information_from_dataframe
-from vision.references.detection.utils import collate_fn
 
 import torch
 import torch.utils.data
@@ -13,12 +12,16 @@ from PIL import Image
 
 class CreateDataset(torch.utils.data.Dataset):
 	def __init__(self, list_image_path, list_boxes, list_classes, transforms):
+		# Provide essential argument
+		# provide data
 		self.list_image_path = list_image_path
 		self.list_boxes = list_boxes
 		self.list_classes = list_classes
+		# provide function to map into each dataset
 		self.transforms = transforms
 
 	def resize(self, box, width, height):
+		# rescale bounding box to original size
 		box[0] = box[0]*width
 		box[1] = box[1]*height
 		box[2] = box[2]*width
@@ -35,7 +38,6 @@ class CreateDataset(torch.utils.data.Dataset):
 		width, height = image.size
 		# Load Bounding Box (return to origin size)
 		boxes = [self.resize(box, width, height) for box in self.list_boxes[index]]
-		visualize_detection(image_path, boxes)
 		boxes = torch.as_tensor(boxes, dtype=torch.float32)
 		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
 		# Load Label of Box
@@ -59,28 +61,23 @@ class CreateDataset(torch.utils.data.Dataset):
 		return len(self.list_image_path)
 
 
-def load_dataset(df_train, folder_image_path, batch_size):
-	(train_list_image_path, train_list_boxes, train_list_classes) = load_list_information_from_dataframe(df_train, folder_image_path, label_off_set=0)
+def collate_fn(batch):
+	return tuple(zip(*batch))
 
-	train_dataset = CreateDataset(train_list_image_path, train_list_boxes, train_list_classes,
+
+def load_dataset(dataframe, folder_image_path, batch_size):
+	# load dataset from dataframe
+	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=0)
+
+	# create dataset of pytorch
+	dataset = CreateDataset(list_image_path, list_boxes, list_classes,
 								  torchvision.transforms.ToTensor())
-	train_dataset = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, drop_last=True,
-												shuffle=True, num_workers=10, collate_fn=collate_fn)
+	# load dataset
+	dataset = torch.utils.data.DataLoader(dataset, batch_size=batch_size, drop_last=True,
+												shuffle=True, num_workers=32, collate_fn=collate_fn)
 
-	return train_dataset
+	return dataset
 
-import pandas as pd
 
 if __name__ == "__main__":
-	folder_image_path = r'D:\Autonomous Driving\Data\Object Detection\image'
-	folder_label_path = r'D:\Autonomous Driving\Data\Object Detection\label'
-
-	#df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-
-	#train_dataset = load_dataset(df_train, os.path.join(folder_image_path, 'train'), 1)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1)
-
-	for (image, label) in test_dataset:
-		print(image[0].numpy(), label[0]['boxes'].numpy())
-		break
+	pass
