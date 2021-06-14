@@ -11,6 +11,7 @@ import torch
 import torch.utils.data
 import pandas as pd
 import argparse
+import numpy as np
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
 			for id in range(len(boxes)):
 				if scores[id] > 0.6:
 					list_box.append(boxes[id])
-			visualize_detection(image[0].numpy(), list_box)
+			visualize_detection(np.array(image[0].numpy()), list_box)
 		break
 
 	for epoch in range(epochs):
