@@ -30,6 +30,13 @@ def main():
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
+	for epoch in range(epochs):
+		print(f"Epoch {epoch + 1}\n-------------------------------")
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
+		evaluate(model, test_dataset, device=device)
+		torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
+	print("Done!")
+
 	model.eval()
 	for image, target in test_dataset:
 		with torch.no_grad():
@@ -42,14 +49,6 @@ def main():
 					list_box.append(boxes[id])
 			visualize_detection(np.array(image[0].numpy()), list_box)
 		break
-
-	for epoch in range(epochs):
-		print(f"Epoch {epoch + 1}\n-------------------------------")
-		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
-		evaluate(model, test_dataset, device=device)
-		torch.save(model.state_dict(), os.path.join(checkpoint_path, str(epoch + 1) + '.pt'))
-	print("Done!")
-
 
 
 if __name__ == '__main__':

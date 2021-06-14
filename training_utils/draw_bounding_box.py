@@ -17,7 +17,7 @@ def visualize_detection(boxes, image=None, image_path=None):
 	else:
 		if image.shape[0] == 3:
 			# convert to cv2 format if it in PIL format
-			image = image.moveaxis(image,0,-1)
+			image = np.multiply(np.array(image.moveaxis(image,0,-1)), 255).astype(int)
 
 	# add each bounding box to image
 	for box in boxes:
@@ -27,5 +27,5 @@ def visualize_detection(boxes, image=None, image_path=None):
 		y_max = int(box[3])
 		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
 
-	cv2.imwrite('test.jpg')
+	cv2.imwrite('test.jpg', image)
 
