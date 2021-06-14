@@ -67,13 +67,6 @@ class CreateDataset(torch.utils.data.Dataset):
 
 
 def collate_fn(batch):
-	'''
-	Collate list of dataset in to batch 
-
-	:param 
-		
-	
-	''' #
 	return tuple(zip(*batch))
 
 

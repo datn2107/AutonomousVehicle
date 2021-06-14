@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
 from vision.references.detection.engine import train_one_epoch, evaluate
-
+from training_utils.draw_bounding_box import visualize_detection
 
 import torch
 import torch.utils.data
@@ -30,10 +30,15 @@ def main():
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
 	model.eval()
-	for test in test_dataset:
+	for image, target in test_dataset:
 		with torch.no_grad():
-			predictions = model(test)
-			print(predictions)
+			predictions = model(image[0].unsqueeze(0).to(device))
+			list_box = []
+			for dict in predictions:
+				boxes, classes, scores = dict.values()
+			for id in range(len(boxes)):
+				if scores[id] > 0.6:
+					list_box.append(boxes[id])
 		break
 
 	for epoch in range(epochs):
