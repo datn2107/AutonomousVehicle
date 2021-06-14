@@ -30,8 +30,9 @@ def main():
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
 	for test in test_dataset:
-		predictions = model(test)
-		print(predictions)
+		with torch.no_grad():
+			predictions = model(test)
+			print(predictions)
 		break
 
 	for epoch in range(epochs):

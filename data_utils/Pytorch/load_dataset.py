@@ -29,6 +29,9 @@ class CreateDataset(torch.utils.data.Dataset):
 		return box
 
 	def __getitem__(self, index):
+		"""
+		:param
+		""" #
 		# Load Image
 		image_path = self.list_image_path[index]
 		image = Image.open(image_path).convert('RGB')
