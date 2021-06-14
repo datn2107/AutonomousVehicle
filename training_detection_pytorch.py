@@ -29,6 +29,7 @@ def main():
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
+	model.eval()
 	for test in test_dataset:
 		with torch.no_grad():
 			predictions = model(test)
