@@ -27,6 +27,5 @@ def visualize_detection(boxes, image=None, image_path=None):
 		y_max = int(box[3])
 		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
 
-	plt.imshow(image)
-	plt.show()
+	cv2.imwrite('test.jpg')
 
