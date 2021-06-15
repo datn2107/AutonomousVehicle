@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualize_detection(image=None, image_path=None, boxes=None, image_name='test.jpg'):
+def visualize_detection(image=None, image_path=None, boxes=None, classes=None, image_name='test.jpg'):
 	'''
 	Draw bounding box on image from image path
 	
@@ -17,15 +17,16 @@ def visualize_detection(image=None, image_path=None, boxes=None, image_name='tes
 	else:
 		if image.shape[0] == 3:
 			# convert to cv2 format if it in PIL format
-			image = np.multiply(np.array(image.moveaxis(image,0,-1)), 255).astype(int)
+			image = np.multiply(np.array(np.moveaxis(image,0,-1)), 255).astype(int)
 
 	# add each bounding box to image
-	for box in boxes:
+	for type, box in zip(classes, boxes):
 		x_min = int(box[0])
 		y_min = int(box[1])
 		x_max = int(box[2])
 		y_max = int(box[3])
-		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
+		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 1)
+		cv2.putText(image, str(type), (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 1)
 
 	cv2.imwrite(image_name, image)
 

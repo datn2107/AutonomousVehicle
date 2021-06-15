@@ -57,6 +57,7 @@ class CreateDataset(torch.utils.data.Dataset):
 
 		num_object = len(self.list_boxes[index])
 		# Load Bounding Box
+		# boxes = [resize(box, 1280, 720) for box in self.list_boxes[index]]
 		boxes = torch.as_tensor(self.list_boxes[index], dtype=torch.float32)
 		# area of each bouding box
 		area = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])

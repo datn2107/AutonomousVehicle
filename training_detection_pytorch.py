@@ -17,37 +17,40 @@ import numpy as np
 def main():
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
+	# df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
-	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size)
+	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1)
 
 	model = load_model(num_class=13)
-	model.load_state_dict(torch.load(os.path.join(checkpoint_path, '5.pt')))
+	model.load_state_dict(torch.load(os.path.join(checkpoint_path, 'epoch_6.pt')))
 	model.to(device)
 
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
-	for epoch in range(epochs):
-		print(f"Epoch {epoch + 1}\n-------------------------------")
-		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
-		evaluate(model, test_dataset, device=device)
-		torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
-	print("Done!")
+	# for epoch in range(epochs):
+	# 	print(f"Epoch {epoch + 1}\n-------------------------------")
+	# 	train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
+	# 	evaluate(model, test_dataset, device=device)
+	# 	torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
+	# print("Done!")
 
 	model.eval()
 	for image, target in test_dataset:
 		with torch.no_grad():
 			predictions = model(image[0].unsqueeze(0).to(device))
 			list_box = []
+			list_class = []
 			for dict in predictions:
 				boxes, classes, scores = dict.values()
 			for id in range(len(boxes)):
 				if scores[id] > 0.6:
 					list_box.append(boxes[id])
-			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, image_name='prediction')
+					list_class.append(classes[id])
+			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+								image_name='prediction.png')
 		break
 
 
