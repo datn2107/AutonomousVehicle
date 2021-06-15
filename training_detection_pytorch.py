@@ -6,6 +6,7 @@ from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
 from vision.references.detection.engine import train_one_epoch, evaluate
 from training_utils.draw_bounding_box import visualize_detection
+from data_utils.data_utils import load_list_information_from_dataframe
 
 import torch
 import torch.utils.data
@@ -20,8 +21,8 @@ def main():
 	# df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
-	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1)
+	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 
 	model = load_model(num_class=13)
 	model.load_state_dict(torch.load(os.path.join(checkpoint_path, 'epoch_6.pt')))
@@ -37,8 +38,10 @@ def main():
 	# 	torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
 	# print("Done!")
 
+	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(df_test, folder_image_path,
+																					   label_off_set=0, norm=False)
 	model.eval()
-	for image, target in test_dataset:
+	for index, image, target in enumerate(test_dataset):
 		with torch.no_grad():
 			predictions = model(image[0].unsqueeze(0).to(device))
 			list_box = []
@@ -51,6 +54,8 @@ def main():
 					list_class.append(classes[id])
 			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
 								image_name='prediction.png')
+			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+								image_name='groundth_true.png')
 		break
 
 

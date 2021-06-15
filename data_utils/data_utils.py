@@ -28,7 +28,7 @@ def split_dataframe_for_training_validation_testing(folder_label_path):
     return (df_train, df_val, df_test)
 
 
-def load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=1):
+def load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=1, norm=True):
     '''
     Load data from dataframe to lists data
 
@@ -45,11 +45,12 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
     ## Clean Dataframe
     # convert image name to path to that image
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
-    # normalize length of each edge in bounding box
-    dataframe['x1'] = dataframe['x1'] / dataframe['width']
-    dataframe['x2'] = dataframe['x2'] / dataframe['width']
-    dataframe['y1'] = dataframe['y1'] / dataframe['height']
-    dataframe['y2'] = dataframe['y2'] / dataframe['height']
+    if norm:
+        # normalize length of each edge in bounding box
+        dataframe['x1'] = dataframe['x1'] / dataframe['width']
+        dataframe['x2'] = dataframe['x2'] / dataframe['width']
+        dataframe['y1'] = dataframe['y1'] / dataframe['height']
+        dataframe['y2'] = dataframe['y2'] / dataframe['height']
     # create new column contain list of coordinate of each bounding box
     dataframe['bbox'] = dataframe.iloc[:][['x1', 'y1', 'x2', 'y2']].values.tolist()
     # shift id_category to left 1 to start at 0

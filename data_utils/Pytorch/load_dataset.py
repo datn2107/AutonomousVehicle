@@ -89,7 +89,7 @@ def collate_fn(batch):
 	return tuple(zip(*batch))
 
 
-def load_dataset(dataframe, folder_image_path, batch_size):
+def load_dataset(dataframe, folder_image_path, batch_size, shuffle=True):
 	'''
 	Load data from dataframe to dataset for pytorch
 	
@@ -99,18 +99,14 @@ def load_dataset(dataframe, folder_image_path, batch_size):
 	:return: 
 	''' #
 	# Load dataset from dataframe
-	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=0)
-	# rescale bonding box to orginal size (torch.utils.data.Dataset class not allow to do inside class, it will cause overload data)
-	for i in range(len(list_boxes)):
-		for j in range(len(list_boxes[i])):
-			list_boxes[i][j] = resize(list_boxes[i][j], 1280, 720)
+	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=0, norm=False)
 
 	# Create dataset of pytorch
 	dataset = CreateDataset(list_image_path, list_boxes, list_classes,
 								  torchvision.transforms.ToTensor())
 	# Load dataset
 	dataset = torch.utils.data.DataLoader(dataset, batch_size=batch_size, drop_last=True,
-												shuffle=True, num_workers=8, collate_fn=collate_fn)
+												shuffle=shuffle, num_workers=8, collate_fn=collate_fn)
 
 	return dataset
 
