@@ -19,7 +19,16 @@ def resize(box, width, height):
 	return box
 
 class CreateDataset(torch.utils.data.Dataset):
+	'''
+	Custom dataset for pytorch model 
+	''' #
 	def __init__(self, list_image_path, list_boxes, list_classes, transforms):
+		'''
+		:param list_image_path: List of image path  
+		:param list_boxes: List of bounding box in each image
+		:param list_classes: List of class that corresponding to each bounding box 
+		:param transforms: Function use to map data 
+		''' #
 		# Provide essential argument
 		# provide data
 		self.list_image_path = list_image_path
@@ -28,10 +37,19 @@ class CreateDataset(torch.utils.data.Dataset):
 		# provide function to map into each dataset
 		self.transforms = transforms
 
+	def __len__(self):
+		'''
+		:return: Length of dataset 
+		''' #
+		return len(self.list_image_path)
+
 	def __getitem__(self, index):
-		"""
+		'''
+		It will fetching data from each elemnt (by index) in data you passed into __init__ method 
 		
-		""" #
+		:param index: Index of data to fetch into dataset
+		:return: 
+		''' #
 		# Load Image
 		image_path = self.list_image_path[index]
 		image = Image.open(image_path).convert('RGB')
@@ -60,25 +78,36 @@ class CreateDataset(torch.utils.data.Dataset):
 
 		return image, target
 
-	def __len__(self):
-		return len(self.list_image_path)
-
 
 def collate_fn(batch):
+	'''
+	After fetching list of data from __build__ method of torch.utils.data.Dataset class, 
+	  it passed into this function to collate them into necessary type
+	Note: Use this function to collate tensors that have different shape
+	''' #
 	return tuple(zip(*batch))
 
 
 def load_dataset(dataframe, folder_image_path, batch_size):
-	# load dataset from dataframe
+	'''
+	Load data from dataframe to dataset for pytorch
+	
+	:param dataframe: Dataframe contain info of data
+	:param folder_image_path: Path of folder contain image 
+	:param batch_size: Batch size to split dataset
+	:return: 
+	''' #
+	# Load dataset from dataframe
 	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=0)
+	# rescale bonding box to orginal size (torch.utils.data.Dataset class not allow to do inside class, it will cause overload data)
 	for i in range(len(list_boxes)):
 		for j in range(len(list_boxes[i])):
 			list_boxes[i][j] = resize(list_boxes[i][j], 1280, 720)
 
-	# create dataset of pytorch
+	# Create dataset of pytorch
 	dataset = CreateDataset(list_image_path, list_boxes, list_classes,
 								  torchvision.transforms.ToTensor())
-	# load dataset
+	# Load dataset
 	dataset = torch.utils.data.DataLoader(dataset, batch_size=batch_size, drop_last=True,
 												shuffle=True, num_workers=8, collate_fn=collate_fn)
 

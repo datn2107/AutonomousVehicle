@@ -47,7 +47,7 @@ def main():
 			for id in range(len(boxes)):
 				if scores[id] > 0.6:
 					list_box.append(boxes[id])
-			visualize_detection(np.array(image[0].numpy()), list_box)
+			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, image_name='prediction')
 		break
 
 

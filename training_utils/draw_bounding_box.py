@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-def visualize_detection(boxes, image=None, image_path=None):
+def visualize_detection(image=None, image_path=None, boxes=None, image_name='test.jpg'):
 	'''
 	Draw bounding box on image from image path
 	
@@ -27,5 +27,5 @@ def visualize_detection(boxes, image=None, image_path=None):
 		y_max = int(box[3])
 		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
 
-	cv2.imwrite('test.jpg', image)
+	cv2.imwrite(image_name, image)
 
