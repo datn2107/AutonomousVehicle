@@ -42,7 +42,9 @@ def main():
 																					   label_off_set=0, norm=False)
 
 	for index, (image, target) in enumerate(test_dataset):
-		loss = model(image[0].unsqueeze(0).to(device), target.unsqueeze(0).to(device))
+		for key, item in target[0]:
+			target[0][key] = target[0][key].to(device)
+		loss = model(image[0].unsqueeze(0).to(device), target)
 		print(loss)
 
 		model.eval()
