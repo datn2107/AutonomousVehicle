@@ -46,7 +46,7 @@ def main():
 																					   label_off_set=0, norm=False)
 	for index, (image, target) in enumerate(test_dataset):
 		# Find loss of detection
-		target[0] = {key: value.to(device) for key, value in target[0].items()}
+		target = [{key: value.to(device) for key, value in target[0].items()}]
 		loss = model(image[0].unsqueeze(0).to(device), target)
 		# calculate average loss
 		avg_loss = sum(l for l in loss.values())/len(loss.values())
@@ -65,11 +65,11 @@ def main():
 					if scores[id] > 0.8:
 						list_box.append(boxes[id])
 						list_class.append(classes[id].cpu().data.numpy())
-			# visualize prediction and ground true by image
-			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-								image_name='prediction.png')
-			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-								image_name='groundth_true.png')
+				# visualize prediction and ground true by image
+				visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+									image_name='prediction.png')
+				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+									image_name='groundth_true.png')
 			break
 
 

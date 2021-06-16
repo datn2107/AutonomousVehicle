@@ -44,7 +44,7 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
 
     ## Clean Dataframe
     # clean error bounding box (area <= 50)
-    dataframe = dataframe[(dataframe['x2']-dataframe['x1'])*(dataframe['y2']-dataframe['y1']) <= 50]
+    dataframe = dataframe[(dataframe['x2']-dataframe['x1'])*(dataframe['y2']-dataframe['y1']) > 50].reset_index(drop=True)
     # convert image name to path to that image
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
     if norm:
