@@ -16,21 +16,24 @@ import numpy as np
 
 
 def main():
-	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
+	'''Load dataset'''
 	# df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-
 	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 
+	'''Load model'''
+	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 	model = load_model(num_class=13)
 	model.load_state_dict(torch.load(os.path.join(checkpoint_path, 'epoch_6.pt')))
 	model.to(device)
 
+	'''Setup essential parameter for model'''
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
+	'''Training'''
 	# for epoch in range(epochs):
 	# 	print(f"Epoch {epoch + 1}\n-------------------------------")
 	# 	train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
@@ -38,20 +41,22 @@ def main():
 	# 	torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
 	# print("Done!")
 
+	'''Visualize Detection'''
 	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(df_test, folder_image_path,
 																					   label_off_set=0, norm=False)
-
 	for index, (image, target) in enumerate(test_dataset):
+		# Find loss of detection
 		for key in target[0].keys():
 			target[0][key] = target[0][key].to(device)
 		loss = model(image[0].unsqueeze(0).to(device), target)
-
-		total_loss = 0
+		# calculate average loss
+		avg_loss = 0
 		for key in loss.keys():
-			total_loss += loss[key].numpy()
-		total_loss /= 4
-
-		if (loss > 0.6):
+			print(key)
+			avg_loss += loss[key].cpu().data.numpy()
+		avg_loss /= 4
+		# Set thresh hold to
+		if (avg_loss > 0.6):
 			model.eval()
 			with torch.no_grad():
 				predictions = model(image[0].unsqueeze(0).to(device))
