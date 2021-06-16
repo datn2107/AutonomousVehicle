@@ -46,32 +46,30 @@ def main():
 																					   label_off_set=0, norm=False)
 	for index, (image, target) in enumerate(test_dataset):
 		# Find loss of detection
-		for key in target[0].keys():
-			target[0][key] = target[0][key].to(device)
+		target[0] = {key: value.to(device) for key, value in target[0].items()}
 		loss = model(image[0].unsqueeze(0).to(device), target)
 		# calculate average loss
-		avg_loss = 0
-		for key in loss.keys():
-			print(key)
-			avg_loss += loss[key].cpu().data.numpy()
-		avg_loss /= 4
-		# Set thresh hold to
+		avg_loss = sum(l for l in loss.values())/len(loss.values())
+		# Visualize image that have too many error
 		if (avg_loss > 0.6):
+			# turn of training mode
 			model.eval()
 			with torch.no_grad():
-				predictions = model(image[0].unsqueeze(0).to(device))
+				# get list_box and list_class in prediction
+				prediction = model(image[0].unsqueeze(0).to(device))
 				list_box = []
 				list_class = []
-				for dict in predictions:
+				for dict in prediction:
 					boxes, classes, scores = dict.values()
 				for id in range(len(boxes)):
-					if scores[id] > 0.6:
+					if scores[id] > 0.8:
 						list_box.append(boxes[id])
 						list_class.append(classes[id].cpu().data.numpy())
-				visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-									image_name='prediction.png')
-				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-									image_name='groundth_true.png')
+			# visualize prediction and ground true by image
+			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+								image_name='prediction.png')
+			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+								image_name='groundth_true.png')
 			break
 
 
