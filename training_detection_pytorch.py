@@ -42,27 +42,32 @@ def main():
 																					   label_off_set=0, norm=False)
 
 	for index, (image, target) in enumerate(test_dataset):
-		for key, item in target[0]:
+		for key in target[0].keys():
 			target[0][key] = target[0][key].to(device)
 		loss = model(image[0].unsqueeze(0).to(device), target)
-		print(loss)
 
-		model.eval()
-		with torch.no_grad():
-			predictions = model(image[0].unsqueeze(0).to(device))
-			list_box = []
-			list_class = []
-			for dict in predictions:
-				boxes, classes, scores = dict.values()
-			for id in range(len(boxes)):
-				if scores[id] > 0.6:
-					list_box.append(boxes[id])
-					list_class.append(classes[id].cpu().data.numpy())
-			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-								image_name='prediction.png')
-			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-								image_name='groundth_true.png')
-		break
+		total_loss = 0
+		for key in loss.keys():
+			total_loss += loss[key].numpy()
+		total_loss /= 4
+
+		if (loss > 0.6):
+			model.eval()
+			with torch.no_grad():
+				predictions = model(image[0].unsqueeze(0).to(device))
+				list_box = []
+				list_class = []
+				for dict in predictions:
+					boxes, classes, scores = dict.values()
+				for id in range(len(boxes)):
+					if scores[id] > 0.6:
+						list_box.append(boxes[id])
+						list_class.append(classes[id].cpu().data.numpy())
+				visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+									image_name='prediction.png')
+				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+									image_name='groundth_true.png')
+			break
 
 
 if __name__ == '__main__':
