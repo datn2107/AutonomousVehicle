@@ -7,6 +7,7 @@ from training_utils.Pytorch.training_utils import load_model
 from vision.references.detection.engine import train_one_epoch, evaluate
 from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_list_information_from_dataframe
+from data_utils.data_utils import clean_dataframe
 
 import torch
 import torch.utils.data
@@ -19,7 +20,7 @@ def main():
 
 	'''Load dataset'''
 	# df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+	df_test = clean_dataframe(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
 	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 

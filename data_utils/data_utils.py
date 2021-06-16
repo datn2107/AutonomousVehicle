@@ -43,9 +43,6 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
     '''  #
 
     ## Clean Dataframe
-    # clean error bounding box (area <= 50)
-    dataframe['area'] = (dataframe['x2']-dataframe['x1'])*(dataframe['y2']-dataframe['y1'])
-    dataframe = dataframe[dataframe['area']>50].reset_index(drop=True)
     # convert image name to path to that image
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
     if norm:
@@ -73,5 +70,12 @@ def load_list_information_from_dataframe(dataframe, folder_image_path, label_off
     return (list_image_path, list_boxes, list_classes)
 
 
+def clean_dataframe(dataframe):
+    # clean error bounding box (area <= 50)
+    dataframe['area'] = (dataframe['x2']-dataframe['x1'])*(dataframe['y2']-dataframe['y1'])
+    dataframe = dataframe[dataframe['area']>50].reset_index(drop=True)
+    return dataframe
+
 if __name__ == "__main__":
+
     pass
