@@ -26,7 +26,7 @@ def visualize_detection(image=None, image_path=None, boxes=None, classes=None, i
 		x_max = int(box[2])
 		y_max = int(box[3])
 		image = cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 1)
-		cv2.putText(image, str(type), (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (36, 255, 12), 1)
+		cv2.putText(image, str(type), (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 1)
 
 	cv2.imwrite(image_name, image)
 

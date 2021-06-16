@@ -40,8 +40,12 @@ def main():
 
 	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(df_test, folder_image_path,
 																					   label_off_set=0, norm=False)
-	model.eval()
-	for index, image, target in enumerate(test_dataset):
+
+	for index, (image, target) in enumerate(test_dataset):
+		loss = model(image[0].unsqueeze(0).to(device), target.unsqueeze(0).to(device))
+		print(loss)
+
+		model.eval()
 		with torch.no_grad():
 			predictions = model(image[0].unsqueeze(0).to(device))
 			list_box = []
@@ -51,7 +55,7 @@ def main():
 			for id in range(len(boxes)):
 				if scores[id] > 0.6:
 					list_box.append(boxes[id])
-					list_class.append(classes[id])
+					list_class.append(classes[id].cpu().data.numpy())
 			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
 								image_name='prediction.png')
 			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
