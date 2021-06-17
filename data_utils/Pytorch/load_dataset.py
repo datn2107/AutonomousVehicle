@@ -1,33 +1,30 @@
 import os
 import sys
+
+import pandas
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 from training_utils.draw_bounding_box import visualize_detection
-from data_utils.data_utils import load_list_information_from_dataframe
+from data_utils.data_utils import load_data_from_dataframe_to_list
 
 import torch
 import torch.utils.data
 import torchvision.transforms
+from typing import Any, List, Callable, Tuple, Dict
 from PIL import Image
-
-def resize(box, width, height):
-	# rescale bounding box to original size
-	box[0] = box[0] * width
-	box[1] = box[1] * height
-	box[2] = box[2] * width
-	box[3] = box[3] * height
-	return box
 
 class CreateDataset(torch.utils.data.Dataset):
 	'''
 	Custom dataset for pytorch model 
 	''' #
-	def __init__(self, list_image_path, list_boxes, list_classes, transforms):
-		'''
-		:param list_image_path: List of image path  
-		:param list_boxes: List of bounding box in each image
-		:param list_classes: List of class that corresponding to each bounding box 
-		:param transforms: Function use to map data 
+	def __init__(self, list_image_path: str, list_boxes: List[Any], list_classes: List[Any], transforms: Callable[[Any], torch.tensor]):
+		''' 
+		Args:
+			list_image_path :str: List of image path  
+			list_boxes :list[list[N, 4]]: List of bounding boxes in each image
+			list_classes :list[N]: List of classes that corresponding to each bounding box 
+			transforms :Callable[[Any], torch.tensor]: Function use to map data 
 		''' #
 		# Provide essential argument
 		# provide data
@@ -38,17 +35,16 @@ class CreateDataset(torch.utils.data.Dataset):
 		self.transforms = transforms
 
 	def __len__(self):
-		'''
-		:return: Length of dataset 
-		''' #
 		return len(self.list_image_path)
 
-	def __getitem__(self, index):
+	def __getitem__(self, index: int) -> Tuple[torch.Tensor, Dict[str, torch.Tensor]]:
 		'''
 		It will fetching data from each elemnt (by index) in data you passed into __init__ method 
 		
-		:param index: Index of data to fetch into dataset
-		:return: 
+		Args:
+			index: Index of data to fetch into dataset
+		Returns:
+			image, target: Image tensor and Target dictionary  
 		''' #
 		# Load Image
 		image_path = self.list_image_path[index]
@@ -66,6 +62,7 @@ class CreateDataset(torch.utils.data.Dataset):
 
 		iscrowd = torch.zeros((num_object,), dtype=torch.int64)
 
+		# Target dictionary contain essential data for label of image
 		target = {}
 		target["boxes"] = boxes
 		target["labels"] = labels
@@ -80,34 +77,40 @@ class CreateDataset(torch.utils.data.Dataset):
 		return image, target
 
 
-def collate_fn(batch):
+def collate_fn(batch: List[Tuple[torch.Tensor, Dict[str, torch.Tensor]]]) -> Tuple[Tuple[torch.Tensor, Dict[str, torch.Tensor]], ...]:
 	'''
 	After fetching list of data from __build__ method of torch.utils.data.Dataset class, 
 	  it passed into this function to collate them into necessary type
+	  
+	Args:
+		batch: One batch in dataset
+		
 	Note: Use this function to collate tensors that have different shape
 	''' #
+	print(batch[0])
 	return tuple(zip(*batch))
 
 
-def load_dataset(dataframe, folder_image_path, batch_size, shuffle=True):
+def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size: int, shuffle: bool = True):
 	'''
 	Load data from dataframe to dataset for pytorch
 	
-	:param dataframe: Dataframe contain info of data
-	:param folder_image_path: Path of folder contain image 
-	:param batch_size: Batch size to split dataset
-	:return: 
+	Args:
+		dataframe :pandas.DataFrame: Dataframe contain info of data
+		folder_image_path :str: Path of folder contain image 
+		batch_size :int: Batch size to split dataset
+		shuffle :bool: If True shuffle dataset 
+	Returns:
+		dataset: Dataset of pytorch 
 	''' #
 	# Load dataset from dataframe
-	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(dataframe, folder_image_path, label_off_set=0, norm=False)
-
+	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(dataframe, folder_image_path, label_off_set=0, norm=False)
 	# Create dataset of pytorch
 	dataset = CreateDataset(list_image_path, list_boxes, list_classes,
 								  torchvision.transforms.ToTensor())
 	# Load dataset
 	dataset = torch.utils.data.DataLoader(dataset, batch_size=batch_size, drop_last=True,
 												shuffle=shuffle, num_workers=8, collate_fn=collate_fn)
-
 	return dataset
 
 

@@ -6,8 +6,8 @@ from data_utils.Pytorch.load_dataset import load_dataset
 from training_utils.Pytorch.training_utils import load_model
 from vision.references.detection.engine import train_one_epoch, evaluate
 from training_utils.draw_bounding_box import visualize_detection
-from data_utils.data_utils import load_list_information_from_dataframe
-from data_utils.data_utils import clean_dataframe
+from data_utils.data_utils import load_data_from_dataframe_to_list
+from data_utils.data_utils import clean_error_bounding_box_in_datafrane
 
 import torch
 import torch.utils.data
@@ -17,24 +17,23 @@ import numpy as np
 
 
 def main():
-
-	'''Load dataset'''
-	# df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-	df_test = clean_dataframe(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
+	## Load dataset
+	# df_train = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'train.csv')))
+	df_test = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
 	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 
-	'''Load model'''
+	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 	model = load_model(num_class=13)
 	model.load_state_dict(torch.load(os.path.join(checkpoint_path, 'epoch_6.pt')))
 	model.to(device)
 
-	'''Setup essential parameter for model'''
+	## Setup essential parameter for model
 	epochs = 30
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
-	'''Training'''
+	## Training
 	# for epoch in range(epochs):
 	# 	print(f"Epoch {epoch + 1}\n-------------------------------")
 	# 	train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
@@ -42,9 +41,9 @@ def main():
 	# 	torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
 	# print("Done!")
 
-	'''Visualize Detection'''
-	(list_image_path, list_boxes, list_classes) = load_list_information_from_dataframe(df_test, folder_image_path,
-																					   label_off_set=0, norm=False)
+	## Visualize Detection
+	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(df_test, folder_image_path,
+																				   label_off_set=0, norm=False)
 	for index, (image, target) in enumerate(test_dataset):
 		# Find loss of detection
 		target = [{key: value.to(device) for key, value in target[0].items()}]
@@ -75,7 +74,7 @@ def main():
 
 
 if __name__ == '__main__':
-	''' Create args to feed argument from terminal '''
+	## Create args to feed argument from terminal
 	parser = argparse.ArgumentParser()
 	# Folder Image Path argument
 	parser.add_argument('--fip', type=str, help='Folder Image Path')
@@ -90,7 +89,7 @@ if __name__ == '__main__':
 	parser.add_argument('--cp', type=str, help='Save Checkpoint Path')
 	parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_fasterrcnn_resmet50_pytorch')
 
-	''' Take the values from args '''
+	## Take the values from args
 	args = parser.parse_args()
 	folder_image_path = args.fip
 	folder_label_path = args.flp
