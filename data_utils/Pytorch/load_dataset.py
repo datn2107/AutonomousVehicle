@@ -83,7 +83,7 @@ def collate_fn(batch: List[Tuple[torch.Tensor, Dict[str, torch.Tensor]]]) -> Tup
 	  it passed into this function to collate them into necessary type
 	  
 	Args:
-		batch: One batch in dataset
+		batch :list: One batch in dataset 
 		
 	Note: Use this function to collate tensors that have different shape
 	''' #
