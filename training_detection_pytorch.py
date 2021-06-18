@@ -18,10 +18,10 @@ import numpy as np
 
 def main():
 	## Load dataset
-	# df_train = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'train.csv')))
+	df_train = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'train.csv')))
 	df_test = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
-	# train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
+	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
 
 	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -30,20 +30,21 @@ def main():
 	model.to(device)
 
 	## Setup essential parameter for model
-	epochs = 30
+	epochs = 10
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
 	## Training
-	# for epoch in range(epochs):
-	# 	print(f"Epoch {epoch + 1}\n-------------------------------")
-	# 	train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
-	# 	evaluate(model, test_dataset, device=device)
-	# 	torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
-	# print("Done!")
+	for epoch in range(epochs):
+		print(f"Epoch {epoch + 1}\n-------------------------------")
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
+		evaluate(model, test_dataset, device=device)
+		torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
+	print("Done!")
 
 	## Visualize Detection
 	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(df_test, folder_image_path,
 																				   label_off_set=0, norm=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 	for index, (image, target) in enumerate(test_dataset):
 		# Find loss of detection
 		target = [{key: value.to(device) for key, value in target[0].items()}]
