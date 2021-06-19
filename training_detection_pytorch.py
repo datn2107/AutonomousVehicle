@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from data_utils.Pytorch.load_dataset import load_dataset
-from training_utils.Pytorch.training_utils import load_model
+from training_utils.Pytorch.training_utils import initialize_model
 from vision.references.detection.engine import train_one_epoch, evaluate
 from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_data_from_dataframe_to_list
@@ -25,8 +25,8 @@ def main():
 
 	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-	model = load_model(num_class=13)
-	model.load_state_dict(torch.load(os.path.join(checkpoint_path, 'epoch_6.pt')))
+	model = initialize_model(num_class=13)
+	model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
 	model.to(device)
 
 	## Setup essential parameter for model
@@ -38,7 +38,7 @@ def main():
 		print(f"Epoch {epoch + 1}\n-------------------------------")
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 		evaluate(model, test_dataset, device=device)
-		torch.save(model.state_dict(), os.path.join(checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
+		torch.save(model.state_dict(), os.path.join(os.path.dirname(checkpoint_path), 'epoch_' + str(epoch) + '.pt'))
 	print("Done!")
 
 	## Visualize Detection
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 	parser.set_defaults(bs=8)
 	# Checkpoint Path argument
 	parser.add_argument('--cp', type=str, help='Save Checkpoint Path')
-	parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_fasterrcnn_resmet50_pytorch')
+	parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_fasterrcnn_resmet50_pytorch\epoch_6.pt')
 
 	## Take the values from args
 	args = parser.parse_args()

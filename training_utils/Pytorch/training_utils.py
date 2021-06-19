@@ -4,9 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 import torch
 import torchvision
+from torch import nn
+from typing import Callable, Any
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
-def load_model(num_class):
+def initialize_model(num_class: int) -> nn.Module:
 	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 	input_features = model.roi_heads.box_predictor.cls_score.in_features
 	model.roi_heads.box_predictor = FastRCNNPredictor(input_features, num_class+1)
