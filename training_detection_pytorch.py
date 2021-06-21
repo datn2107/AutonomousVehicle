@@ -32,7 +32,7 @@ def main():
 
 	## Setup essential parameter for model
 	epochs = 40
-	optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 
 	## Training
 	for epoch in range(epochs):
