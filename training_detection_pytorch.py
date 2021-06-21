@@ -3,7 +3,8 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from data_utils.Pytorch.load_dataset import load_dataset
-from training_utils.Pytorch.training_utils import initialize_model
+from training_utils.Pytorch.training_utils import initialize_FasterRCNN_model
+from training_utils.Pytorch.training_utils import initialize_SSD300_VGG16_model
 from vision.references.detection.engine import train_one_epoch, evaluate
 from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_data_from_dataframe_to_list
@@ -25,8 +26,8 @@ def main():
 
 	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-	model = initialize_model(num_class=13)
-	model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
+	model = initialize_SSD300_VGG16_model(num_class=13)
+	#model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
 	model.to(device)
 
 	## Setup essential parameter for model
@@ -68,10 +69,10 @@ def main():
 						list_class.append(classes[id].cpu().data.numpy())
 				# visualize prediction and ground true by image
 				visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-									image_name='prediction.png')
+									image_name='prediction_' + str(index) + '.png')
 				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-									image_name='groundth_true.png')
-			break
+									image_name='groundth_true_' + str(index) + '.png')
+			model.train()
 
 
 if __name__ == '__main__':
