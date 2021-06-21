@@ -1,8 +1,6 @@
 import os
 import sys
 
-from scipy.integrate._ivp.common import num_jac
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 import torch
@@ -12,6 +10,7 @@ from typing import Callable, Any
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from vision.torchvision.models.detection.ssd import ssd300_vgg16
 from vision.torchvision.models.detection.ssd import SSDHead
+from vision.torchvision.models.detection._utils import retrieve_out_channels
 
 def initialize_FasterRCNN_model(num_class: int) -> nn.Module:
 	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
@@ -22,7 +21,7 @@ def initialize_FasterRCNN_model(num_class: int) -> nn.Module:
 
 def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
 	model = ssd300_vgg16(pretrained=True)
-	out_channels = model.backbone.out_channels
+	out_channels = retrieve_out_channels(model.backbone, (300, 300))
 	num_anchors = model.anchor_generator.num_anchors_per_location()
 	model.head = SSDHead(out_channels, num_anchors, num_class+1)
 	return model
