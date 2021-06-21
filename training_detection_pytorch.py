@@ -27,18 +27,18 @@ def main():
 	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 	model = initialize_SSD300_VGG16_model(num_class=13)
-	#model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
+	model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
 	model.to(device)
 
 	## Setup essential parameter for model
-	epochs = 10
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
+	epochs = 40
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.005)
 
 	## Training
 	for epoch in range(epochs):
 		print(f"Epoch {epoch + 1}\n-------------------------------")
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
-		evaluate(model, test_dataset, device=device)
+		# evaluate(model, test_dataset, device=device)
 		torch.save(model.state_dict(), os.path.join(os.path.dirname(checkpoint_path), 'epoch_' + str(epoch) + '.pt'))
 	print("Done!")
 
