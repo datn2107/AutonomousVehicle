@@ -37,10 +37,10 @@ def main():
 
 	## Training
 	for epoch in range(epochs):
-		print(f"Epoch {epoch + 1}\n-------------------------------")
+		print(f"Epoch {epoch+1}\n-------------------------------")
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 		# evaluate(model, test_dataset, device=device)
-		torch.save(model.state_dict(), os.path.join(os.path.dirname(checkpoint_path), 'epoch_' + str(epoch) + '.pt'))
+		torch.save(model.state_dict(), os.path.join(os.path.dirname(checkpoint_path), 'epoch_' + str(epoch+1) + '.pt'))
 	print("Done!")
 
 	## Visualize Detection

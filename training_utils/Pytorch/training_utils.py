@@ -7,7 +7,7 @@ import torch
 import torchvision
 from torch import nn
 from typing import Callable, Any
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from vision.torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from vision.torchvision.models.detection.ssd import ssd300_vgg16
 from vision.torchvision.models.detection.ssd import SSDClassificationHead
 
