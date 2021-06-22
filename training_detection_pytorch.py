@@ -22,7 +22,7 @@ def main():
 	df_train = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'train.csv')))
 	df_test = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'), batch_size, shuffle=True)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path,'test'), batch_size, shuffle=False)
 
 	## Load model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
