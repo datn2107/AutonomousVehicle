@@ -7,9 +7,9 @@ import torch
 import torchvision
 from torch import nn
 from typing import Callable, Any
-from vision.torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from vision.torchvision.models.detection.ssd import ssd300_vgg16
-from vision.torchvision.models.detection.ssd import SSDClassificationHead
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.ssd import ssd300_vgg16
+from torchvision.models.detection.ssd import SSDClassificationHead
 
 def initialize_FasterRCNN_model(num_class: int) -> nn.Module:
 	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
