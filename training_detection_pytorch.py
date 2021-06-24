@@ -18,6 +18,11 @@ import numpy as np
 
 
 def main():
+	global folder_image_path
+	global folder_label_path
+	global batch_size
+	global checkpoint_path, folder_checkpoint_path
+
 	## Load dataset
 	df_train = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'train.csv')))
 	df_test = clean_error_bounding_box_in_datafrane(pd.read_csv(os.path.join(folder_label_path, 'test.csv')))
@@ -29,6 +34,9 @@ def main():
 	model = initialize_FasterRCNN_model(num_class=13)
 	if ".pt" in os.path.basename(checkpoint_path):
 		model.load_state_dict(torch.load(os.path.join(checkpoint_path)))
+		folder_checkpoint_path = os.path.dirname(checkpoint_path)
+	else:
+		folder_checkpoint_path = checkpoint_path
 	model.to(device)
 
 	## Setup essential parameter for model
@@ -40,7 +48,7 @@ def main():
 		print(f"Epoch {epoch+1}\n-------------------------------")
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 		# evaluate(model, test_dataset, device=device)
-		torch.save(model.state_dict(), os.path.join(os.path.dirname(checkpoint_path), 'epoch_' + str(epoch+1) + '.pt'))
+		torch.save(model.state_dict(), os.path.join(folder_checkpoint_path, 'epoch_' + str(epoch+1) + '.pt'))
 	print("Done!")
 
 	## Visualize Detection
