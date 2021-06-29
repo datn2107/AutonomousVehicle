@@ -1,18 +1,16 @@
 import os
 import sys
-
-import pandas
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
-from training_utils.draw_bounding_box import visualize_detection
-from data_utils.data_utils import load_data_from_dataframe_to_list
-
+import pandas
 import torch
 import torch.utils.data
 import torchvision.transforms
 from typing import Any, List, Callable, Tuple, Dict
 from PIL import Image
+
+from training_utils.draw_bounding_box import visualize_detection
+from data_utils.data_utils import load_data_from_dataframe_to_list
 
 class CreateDataset(torch.utils.data.Dataset):
 	'''

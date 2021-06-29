@@ -1,6 +1,5 @@
 import os
 import sys
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 
 import torch
@@ -25,19 +24,21 @@ def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
 	model.head.classification_head = SSDClassificationHead(out_channels, num_anchors, num_class+1)
 	return model
 
-# def train_loop(dataset, model, loss_fn, optimizer):
-# 	for batch, (image, label) in enumerate(dataset):
-# 		# Compute prediction and loss
-# 		loss = model(image, label)
-#
-# 		# Backpropagation
-# 		optimizer.zero_grad()
-# 		loss.backward()
-# 		optimizer.step()
-#
-# 		if batch % 100 == 0:
-# 			loss, current = loss.item(), batch * len(X)
-# 			print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+def train_loop(dataset, model, optimizer):
+	print("Start training")
+	for batch, (image, label) in enumerate(dataset):
+		print(batch)
+		# Compute prediction and loss
+		loss = model(image, label)
+
+		# Backpropagation
+		optimizer.zero_grad()
+		loss.backward()
+		optimizer.step()
+
+		if batch % 100 == 0:
+			loss = loss.item()
+			print(f"loss: {loss:>7f}")
 
 # def test_loop(dataloader, model, loss_fn):
 # 	size = len(dataloader.dataset)
@@ -52,3 +53,6 @@ def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
 # 	test_loss /= size
 # 	correct /= size
 # 	print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+
+if __name__ == '__main__':
+	pass

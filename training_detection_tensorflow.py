@@ -4,18 +4,14 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 import tensorflow as tf
 import pandas as pd
-import numpy as np
 import argparse
 
-from data_utils.Tensorflow.load_dataset import load_data_from_dataframe
-from data_utils.data_utils import split_dataframe_for_training_validation_testing
-from training_utils.Tensorflow.training_utils import load_model_from_config
-from training_utils.Tensorflow.training_utils import load_checkpoint_for_model
-from training_utils.Tensorflow.training_utils import define_fine_tune_list
-from training_utils.Tensorflow.training_utils import train_step_fn
-from training_utils.Tensorflow.training_utils import evaluate_loss
-from training_utils.Tensorflow.detection_utils import detect
-from training_utils.Tensorflow.detection_utils import visualize_detection
+from SourceCode.data_utils.load_dataset_tensorflow import load_data_from_dataframe
+from SourceCode.training_utils.training_utils_tensorflow import load_model_from_config
+from SourceCode.training_utils.training_utils_tensorflow import load_checkpoint_for_model
+from SourceCode.training_utils.training_utils_tensorflow import define_fine_tune_list
+from SourceCode.training_utils.detection_utils_tensorflow import detect
+from SourceCode.training_utils.detection_utils_tensorflow import visualize_detection
 
 
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
