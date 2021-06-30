@@ -85,8 +85,7 @@ def collate_fn(batch: List[Tuple[torch.Tensor, Dict[str, torch.Tensor]]]) -> Tup
 		
 	Note: Use this function to collate tensors that have different shape
 	''' #
-	return tuple(zip(*batch))
-
+	return list(zip(*batch))
 
 def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size: int, shuffle: bool = True):
 	'''

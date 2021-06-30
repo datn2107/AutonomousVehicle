@@ -1,14 +1,13 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from SourceCode.data_utils.load_dataset_pytorch import load_dataset
-from SourceCode.training_utils.training_utils_pytorch import initialize_FasterRCNN_model
-from SourceCode.training_utils.training_utils_pytorch import train_loop
-from SourceCode.vision.references.detection.engine import train_one_epoch
-from SourceCode.training_utils.draw_bounding_box import visualize_detection
-from SourceCode.data_utils.data_utils import load_data_from_dataframe_to_list
-from SourceCode.data_utils.data_utils import clean_error_bounding_box_in_datafrane
+from data_utils.load_dataset_pytorch import load_dataset
+from training_utils.training_utils_pytorch import initialize_FasterRCNN_model
+from training_utils.training_utils_pytorch import train_one_epoch
+# from vision.references.detection.engine import train_one_epoch
+from training_utils.draw_bounding_box import visualize_detection
+from data_utils.data_utils import load_data_from_dataframe_to_list
+from data_utils.data_utils import clean_error_bounding_box_in_datafrane
 
 import torch
 import torch.utils.data
@@ -68,13 +67,11 @@ epochs = 40
 optimizer = torch.optim.SGD(model.parameters(), lr=0.0005, momentum=0.9)
 
 
-train_loop(train_dataset, model, optimizer)
-
-
 ## Training
 for epoch in range(epochs):
 	print(f"Epoch {epoch}\n-------------------------------")
-	train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
+	train_one_epoch(model, optimizer, train_dataset, device, print_freq=1000)
+	# train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500)
 	# evaluate(model, test_dataset, device=device)
 	torch.save(model.state_dict(), os.path.join(folder_checkpoint_path, 'epoch_' + str(epoch) + '.pt'))
 print("Done!")

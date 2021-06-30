@@ -24,20 +24,22 @@ def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
 	model.head.classification_head = SSDClassificationHead(out_channels, num_anchors, num_class+1)
 	return model
 
-def train_loop(dataset, model, optimizer):
-	print("Start training")
-	for batch, (image, label) in enumerate(dataset):
-		print(batch)
+def train_one_epoch(model, optimizer, dataset, device, print_freq=1000):
+	for batch, (images, targets) in enumerate(dataset):
+		images = [image.to(device) for image in images]
+		targets = [{k: v.to(device) for k, v in target.items()} for target in targets]
+
 		# Compute prediction and loss
-		loss = model(image, label)
+		loss_dict = model(images, targets)
+		total_loss = sum(loss for loss in loss_dict.values())
 
 		# Backpropagation
 		optimizer.zero_grad()
-		loss.backward()
+		total_loss.backward()
 		optimizer.step()
 
-		if batch % 100 == 0:
-			loss = loss.item()
+		if batch % print_freq == 0:
+			loss = loss_dict.item()
 			print(f"loss: {loss:>7f}")
 
 # def test_loop(dataloader, model, loss_fn):
