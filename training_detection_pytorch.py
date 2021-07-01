@@ -23,7 +23,7 @@ def load_model(ckpt=None):
 
 	model = initialize_FasterRCNN_model(num_class=13)
 	if ".pt" in os.path.basename(ckpt) and os.path.exists(ckpt):
-		model.load_state_dict(torch.load(os.path.join(ckpt)))
+		model.load_state_dict(torch.load(ckpt))
 	model.to(device)
 
 	return model
@@ -38,8 +38,9 @@ def metric():
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path,'test'),
 								batch_size, shuffle=False)
 
-	for file_name in os.listdir():
+	for file_name in os.listdir(checkpoint_dir):
 		ckpt = os.path.join(checkpoint_dir, file_name)
+		print("Evaluate " + file_name)
 		model = load_model(ckpt)
 		evaluate(model, test_dataset, device=device)
 
