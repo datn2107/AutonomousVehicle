@@ -5,3 +5,4 @@ Test.py
 __pycache__
 .vscode
 vision
+epoch_19.pt

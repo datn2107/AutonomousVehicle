@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import pandas
 import torch
@@ -16,7 +16,7 @@ class CreateDataset(torch.utils.data.Dataset):
 	'''
 	Custom dataset for pytorch model 
 	''' #
-	def __init__(self, list_image_path: str, list_boxes: List[Any], list_classes: List[Any], transforms: Callable[[Any], torch.tensor]):
+	def __init__(self, list_image_path: List[str], list_boxes: List[Any], list_classes: List[Any], transforms: Callable[[Any], torch.tensor]):
 		''' 
 		Args:
 			list_image_path :str: List of image path  
@@ -85,7 +85,7 @@ def collate_fn(batch: List[Tuple[torch.Tensor, Dict[str, torch.Tensor]]]) -> Tup
 		
 	Note: Use this function to collate tensors that have different shape
 	''' #
-	return list(zip(*batch))
+	return tuple(zip(*batch))
 
 def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size: int, shuffle: bool = True):
 	'''
@@ -100,13 +100,14 @@ def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size
 		dataset: Dataset of pytorch 
 	''' #
 	# Load dataset from dataframe
-	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(dataframe, folder_image_path, label_off_set=0, norm=False)
+	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(dataframe, folder_image_path,
+																				   label_off_set=0, norm=False)
 	# Create dataset of pytorch
 	dataset = CreateDataset(list_image_path, list_boxes, list_classes,
-								  torchvision.transforms.ToTensor())
+							torchvision.transforms.ToTensor())
 	# Load dataset
 	dataset = torch.utils.data.DataLoader(dataset, batch_size=batch_size, drop_last=True,
-												shuffle=shuffle, num_workers=8, collate_fn=collate_fn)
+										  shuffle=shuffle, num_workers=2, collate_fn=collate_fn)
 	return dataset
 
 

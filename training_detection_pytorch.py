@@ -35,8 +35,7 @@ def metric():
 	df_test = clean_error_bounding_box_in_datafrane(df_test)
 
 	## Load dataset
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path,'test'),
-								batch_size, shuffle=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
 
 	for file_name in os.listdir(checkpoint_dir):
 		ckpt = os.path.join(checkpoint_dir, file_name)
@@ -92,7 +91,7 @@ def visualize_result():
 		avg_loss = sum(val for val in loss.values())/len(loss.values())
 
 		# Visualize image that have too many error
-		if avg_loss > 0.7:
+		if avg_loss > 0.5:
 			# turn of training mode
 			model.eval()
 
@@ -104,7 +103,7 @@ def visualize_result():
 				for dict in prediction:
 					boxes, classes, scores = dict.values()
 				for id in range(len(boxes)):
-					if scores[id] > 0.8:
+					if scores[id] > 0.75:
 						list_box.append(boxes[id])
 						list_class.append(classes[id].cpu().data.numpy())
 
@@ -113,6 +112,9 @@ def visualize_result():
 									image_name='prediction_' + str(index) + '.png')
 				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
 									image_name='groundth_true_' + str(index) + '.png')
+
+		if index > 20:
+			break
 
 
 if __name__ == '__main__':
@@ -129,8 +131,7 @@ if __name__ == '__main__':
 	parser.set_defaults(bs=8)
 	# Checkpoint Path argument
 	parser.add_argument('--cp', type=str, help='Save Checkpoint Path (File)')
-	parser.set_defaults(
-	cp=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\checkpoint_fasterrcnn_resmet50_pytorch\epoch_6.pt')
+	parser.set_defaults(cp=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
 
 	## Take the values from args
 	args = parser.parse_args()

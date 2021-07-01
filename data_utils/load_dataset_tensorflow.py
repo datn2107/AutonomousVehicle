@@ -3,9 +3,9 @@ import tensorflow as tf
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from data_utils.data_utils import load_list_information_from_dataframe
+from data_utils import load_list_information_from_dataframe
 
 
 def load_image(height, width):
