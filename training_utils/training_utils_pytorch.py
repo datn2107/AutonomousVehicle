@@ -25,7 +25,9 @@ def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
 	return model
 
 def train_one_epoch(model, optimizer, dataset, device, print_freq=1000):
+	model.train()
 	for batch, (images, targets) in enumerate(dataset):
+		print(batch)
 		images = [image.to(device) for image in images]
 		targets = [{k: v.to(device) for k, v in target.items()} for target in targets]
 
