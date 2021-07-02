@@ -44,7 +44,7 @@ def metric():
 		evaluate(model, test_dataset, device=device)
 
 
-def training():
+def train():
 	## Load dataframe
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	df_train = clean_error_bounding_box_in_datafrane(df_train)
@@ -52,7 +52,6 @@ def training():
 	## Load dataset
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
 								 batch_size, shuffle=True)
-
 
 	## Load model
 	model = load_model()
@@ -142,4 +141,4 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-	metric()
+	train()

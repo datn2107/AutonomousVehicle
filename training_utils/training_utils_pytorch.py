@@ -1,17 +1,17 @@
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 import torch
 import torchvision
 from torch import nn
 from typing import Callable, Any
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.ssd import ssd300_vgg16
-from torchvision.models.detection.ssd import SSDClassificationHead
+from vision.torchvision.models.detection.ssd import ssd300_vgg16
+from vision.torchvision.models.detection.ssd import SSDClassificationHead
 
 def initialize_FasterRCNN_model(num_class: int) -> nn.Module:
-	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, trainable_backbone_layers=4)
 	input_features = model.roi_heads.box_predictor.cls_score.in_features
 	model.roi_heads.box_predictor = FastRCNNPredictor(input_features, num_class+1)
 
