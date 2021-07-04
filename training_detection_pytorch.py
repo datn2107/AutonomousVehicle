@@ -37,8 +37,9 @@ def metric():
 	## Load dataset
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
 
-	for file_name in os.listdir(checkpoint_dir):
-		ckpt = os.path.join(checkpoint_dir, file_name)
+	file_name = "epoch_{index}.pt"
+	for index in range(0,40):
+		ckpt = os.path.join(checkpoint_dir, file_name.format(index=index))
 		print("Evaluate " + file_name)
 		model = load_model(ckpt)
 		evaluate(model, test_dataset, device=device)
@@ -141,4 +142,4 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-	train()
+	metric()
