@@ -7,21 +7,27 @@ import torchvision
 from torch import nn
 from typing import Callable, Any
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from vision.torchvision.models.detection.ssd import ssd300_vgg16
-from vision.torchvision.models.detection.ssd import SSDClassificationHead
+from vision.torchvision.models.detection import ssd
+from efficientnet_pytorch import EfficientNet
 
-def initialize_FasterRCNN_model(num_class: int) -> nn.Module:
+
+def efficient_net(num_class: int) -> nn.Module:
+	model = EfficientNet.from_pretrained('efficientnet-b4', num_classes=num_class+1)
+
+	return model
+
+def faster_rcnn(num_class: int) -> nn.Module:
 	model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, trainable_backbone_layers=4)
 	input_features = model.roi_heads.box_predictor.cls_score.in_features
 	model.roi_heads.box_predictor = FastRCNNPredictor(input_features, num_class+1)
 
 	return model
 
-def initialize_SSD300_VGG16_model(num_class: int) -> nn.Module:
-	model = ssd300_vgg16(pretrained=True)
+def ssd300_vgg16(num_class: int) -> nn.Module:
+	model = ssd.ssd300_vgg16(pretrained=True)
 	out_channels = model.head.in_channels
 	num_anchors = model.head.num_anchors
-	model.head.classification_head = SSDClassificationHead(out_channels, num_anchors, num_class+1)
+	model.head.classification_head = ssd.SSDClassificationHead(out_channels, num_anchors, num_class+1)
 	return model
 
 def train_one_epoch(model, optimizer, dataset, device, print_freq=1000):

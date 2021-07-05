@@ -2,9 +2,8 @@ import os
 import sys
 
 from data_utils.load_dataset_pytorch import load_dataset
-from training_utils.training_utils_pytorch import initialize_FasterRCNN_model
-from training_utils.training_utils_pytorch import train_one_epoch
-# from vision.references.detection.engine import train_one_epoch
+from training_utils.training_utils_pytorch import efficient_net
+from vision.references.detection.engine import train_one_epoch
 from vision.references.detection.engine import evaluate
 from training_utils.draw_bounding_box import visualize_detection
 from data_utils.data_utils import load_data_from_dataframe_to_list
@@ -21,7 +20,7 @@ def load_model(ckpt=None):
 	if ckpt == None:
 		ckpt = checkpoint_path
 
-	model = initialize_FasterRCNN_model(num_class=13)
+	model = efficient_net(num_class=13)
 	if ".pt" in os.path.basename(ckpt) and os.path.exists(ckpt):
 		model.load_state_dict(torch.load(ckpt))
 	model.to(device)
@@ -65,8 +64,7 @@ def train():
 	## Training
 	for epoch in range(epochs):
 		print(f"Epoch {epoch}\n-------------------------------")
-		train_one_epoch(model, optimizer, train_dataset, device, print_freq=1000)
-		# train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500) # torchvision version
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500) # torchvision version
 		torch.save(model.state_dict(), os.path.join(checkpoint_dir, 'epoch_' + str(epoch) + '.pt'))
 	print("Done!")
 
@@ -142,4 +140,4 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-	metric()
+	train()
