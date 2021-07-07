@@ -55,8 +55,8 @@ def create_yolo_labels(dataframe: pandas.DataFrame, folder_image_path: str, fold
         file = open(image_file, "w")
         for box, cat in zip(boxes, classes):
             file.write(str(cat) + ' ')
-            file.write(str((box[2]-box[0]) / 2) + ' ')
-            file.write(str((box[3]-box[1]) / 2) + ' ')
+            file.write(str((box[2]+box[0]) / 2) + ' ')
+            file.write(str((box[3]+box[1]) / 2) + ' ')
             file.write(str(box[2] - box[0]) + ' ')
             file.write(str(box[3] - box[1]) + '\n')
         file.close()

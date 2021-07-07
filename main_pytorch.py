@@ -142,10 +142,11 @@ if __name__ == '__main__':
 
 
 	# Create labels for yolo
-	for dir in ["train", "test"]:
-		if (not os.path.isdir(os.path.join(folder_label_path, dir))):
-			os.mkdir(os.path.join(folder_label_path, dir))
-			dataframe = pd.read_csv(os.path.join(folder_label_path, dir + ".csv"))
-			create_yolo_labels(dataframe, os.path.join(folder_image_path, dir), os.path.join(folder_label_path, dir))
+	# for dir in ["train", "test"]:
+	# 	if (not os.path.isdir(os.path.join(folder_label_path, dir))):
+	# 		os.mkdir(os.path.join(folder_label_path, dir))
+	# 		dataframe = pd.read_csv(os.path.join(folder_label_path, dir + ".csv"))
+	# 		create_yolo_labels(dataframe, os.path.join(folder_image_path, dir), os.path.join(folder_label_path, dir))
+
 
 	# train()
