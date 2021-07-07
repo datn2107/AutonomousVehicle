@@ -1,13 +1,16 @@
 import os
 import sys
+sys.path.append(os.path.dirname(os.path.basename(__file__)))
 
-from data_utils.load_dataset_pytorch import load_dataset
-from training_utils.training_utils_pytorch import efficient_net
-from vision.references.detection.engine import train_one_epoch
+from utils.data_utils_pytorch import load_dataset
+from utils.models_pytorch import ssd300_vgg16
+from utils.models_pytorch import faster_rcnn
+from utils.train_pytorch import train_one_epoch
+# from vision.references.detection.engine import train_one_epoch
 from vision.references.detection.engine import evaluate
-from training_utils.draw_bounding_box import visualize_detection
-from data_utils.data_utils import load_data_from_dataframe_to_list
-from data_utils.data_utils import clean_error_bounding_box_in_datafrane
+from utils.draw_bounding_box import visualize_detection
+from utils.data_utils import load_list_data
+from utils.data_utils import create_yolo_labels
 
 import torch
 import torch.utils.data
@@ -20,8 +23,8 @@ def load_model(ckpt=None):
 	if ckpt == None:
 		ckpt = checkpoint_path
 
-	model = efficient_net(num_class=13)
-	if ".pt" in os.path.basename(ckpt) and os.path.exists(ckpt):
+	model = faster_rcnn(num_class=13)
+	if os.path.exists(ckpt):
 		model.load_state_dict(torch.load(ckpt))
 	model.to(device)
 
@@ -31,7 +34,6 @@ def load_model(ckpt=None):
 def metric():
 	## Load dataframe
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-	df_test = clean_error_bounding_box_in_datafrane(df_test)
 
 	## Load dataset
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
@@ -47,23 +49,22 @@ def metric():
 def train():
 	## Load dataframe
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-	df_train = clean_error_bounding_box_in_datafrane(df_train)
 
 	## Load dataset
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
-								 batch_size, shuffle=True)
+								 batch_size, shuffle=True, size=(244,244))
 
 	## Load model
 	model = load_model()
 
 	## Setup essential parameter for model
 	epochs = 40
-	optimizer = torch.optim.SGD(model.parameters(), lr=0.0005, momentum=0.9)
-
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 	## Training
 	for epoch in range(epochs):
 		print(f"Epoch {epoch}\n-------------------------------")
+		# train_one_epoch(model, optimizer, train_dataset, device)
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500) # torchvision version
 		torch.save(model.state_dict(), os.path.join(checkpoint_dir, 'epoch_' + str(epoch) + '.pt'))
 	print("Done!")
@@ -72,13 +73,12 @@ def train():
 def visualize_result():
 	## Load dataframe
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-	df_test = clean_error_bounding_box_in_datafrane(df_test)
 
 	model = load_model()
 
 	## Visualize Detection
-	(list_image_path, list_boxes, list_classes) = load_data_from_dataframe_to_list(df_test, folder_image_path,
-																				   label_off_set=0, norm=False)
+	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, folder_image_path,
+																 label_off_set=0, norm=False)
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 
 	for index, (image, target) in enumerate(test_dataset):
@@ -120,10 +120,10 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	# Folder Image Path argument
 	parser.add_argument('--fip', type=str, help='Folder Image Path')
-	parser.set_defaults(fip=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\image')
+	parser.set_defaults(fip=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images')
 	# Folder Label Path argument
 	parser.add_argument('--flp', type=str, help='Folder Label Path')
-	parser.set_defaults(flp=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\label')
+	parser.set_defaults(flp=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\labels')
 	# Batch Size argument
 	parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
 	parser.set_defaults(bs=8)
@@ -131,7 +131,7 @@ if __name__ == '__main__':
 	parser.add_argument('--cp', type=str, help='Save Checkpoint Path (File)')
 	parser.set_defaults(cp=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
 
-	## Take the values from args
+
 	args = parser.parse_args()
 	folder_image_path = args.fip
 	folder_label_path = args.flp
@@ -140,4 +140,12 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-	train()
+
+	# Create labels for yolo
+	for dir in ["train", "test"]:
+		if (not os.path.isdir(os.path.join(folder_label_path, dir))):
+			os.mkdir(os.path.join(folder_label_path, dir))
+			dataframe = pd.read_csv(os.path.join(folder_label_path, dir + ".csv"))
+			create_yolo_labels(dataframe, os.path.join(folder_image_path, dir), os.path.join(folder_label_path, dir))
+
+	# train()

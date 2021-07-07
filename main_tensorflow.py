@@ -1,16 +1,15 @@
-import sys
 import os
 
 import tensorflow as tf
 import pandas as pd
 import argparse
 
-from data_utils.load_dataset_tensorflow import load_data_from_dataframe
-from training_utils.training_utils_tensorflow import load_model_from_config
-from training_utils.training_utils_tensorflow import load_checkpoint_for_model
-from training_utils.training_utils_tensorflow import define_fine_tune_list
-from training_utils.detection_utils_tensorflow import detect
-from training_utils.detection_utils_tensorflow import visualize_detection
+from utils.data_utils_tensorflow import load_data_from_dataframe
+from model.training_utils_tensorflow import load_model_from_config
+from model.training_utils_tensorflow import load_checkpoint_for_model
+from model.training_utils_tensorflow import define_fine_tune_list
+from model.detection_utils_tensorflow import detect
+from model.detection_utils_tensorflow import visualize_detection
 
 
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
