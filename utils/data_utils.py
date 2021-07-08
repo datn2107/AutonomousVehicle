@@ -47,16 +47,25 @@ def load_list_data(dataframe: pandas.DataFrame, folder_image_path: str,
     return list_image_path, list_boxes, list_classes
 
 
-def create_yolo_labels(dataframe: pandas.DataFrame, folder_image_path: str, folder_label_path: str) -> None:
-    list_image_path, list_boxes, list_classes = load_list_data(dataframe, folder_image_path)
-    for image, boxes, classes in zip(list_image_path, list_boxes, list_classes):
-        image_file = os.path.join(folder_label_path, os.path.basename(image).split('.')[0] + '.txt')
+def create_yolo_labels(folder_image_path: str, folder_label_path: str) -> None:
+    def create_labels_txt(dataframe: pandas.DataFrame, folder_image_path: str, folder_label_path: str) -> None:
+        list_image_path, list_boxes, list_classes = load_list_data(dataframe, folder_image_path)
+        for image, boxes, classes in zip(list_image_path, list_boxes, list_classes):
+            image_file = os.path.join(folder_label_path, os.path.basename(image).split('.')[0] + '.txt')
 
-        file = open(image_file, "w")
-        for box, cat in zip(boxes, classes):
-            file.write(str(cat) + ' ')
-            file.write(str((box[2]+box[0]) / 2) + ' ')
-            file.write(str((box[3]+box[1]) / 2) + ' ')
-            file.write(str(box[2] - box[0]) + ' ')
-            file.write(str(box[3] - box[1]) + '\n')
-        file.close()
+            file = open(image_file, "w")
+            for box, cat in zip(boxes, classes):
+                file.write(str(cat) + ' ')
+                file.write(str((box[2]+box[0]) / 2) + ' ')
+                file.write(str((box[3]+box[1]) / 2) + ' ')
+                file.write(str(box[2] - box[0]) + ' ')
+                file.write(str(box[3] - box[1]) + '\n')
+            file.close()
+
+    # Create labels for yolo
+    for dir in ["train", "test"]:
+        if (not os.path.isdir(os.path.join(folder_label_path, dir))):
+            os.mkdir(os.path.join(folder_label_path, dir))
+            dataframe = pd.read_csv(os.path.join(folder_label_path, dir + ".csv"))
+            create_labels_txt(dataframe, os.path.join(folder_image_path, dir), os.path.join(folder_label_path, dir))
+
