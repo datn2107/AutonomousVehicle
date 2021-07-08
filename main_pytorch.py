@@ -41,7 +41,7 @@ def load_model(ckpt=None):
 	return model
 
 
-def metric():
+def eval():
 	## Load dataframe
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
@@ -124,19 +124,22 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	# Folder Image Path argument
 	parser.add_argument('--images', type=str, help='Folder Image Path')
-	parser.set_defaults(fip=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images')
+	parser.set_defaults(labels=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images')
 	# Folder Label Path argument
 	parser.add_argument('--labels', type=str, help='Folder Label Path')
-	parser.set_defaults(flp=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\labels')
+	parser.set_defaults(labels=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\labels')
 	# Batch Size argument
 	parser.add_argument('--batch', type=int, help='Batch size to split image dataset')
-	parser.set_defaults(bs=8)
+	parser.set_defaults(batch=8)
 	# Checkpoint Path argument
 	parser.add_argument('--checkpoint', type=str, help='Save Checkpoint Path (File)')
-	parser.set_defaults(cp=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
+	parser.set_defaults(checkpoint=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
 	# Select Model
 	parser.add_argument('--model', type=str, help='Model you want to use')
-	parser.set_defaults(cp=r'yolo')
+	parser.set_defaults(model=r'yolo')
+	# Select Mode
+	parser.add_argument('--mode', type=str)
+	parser.set_defaults(mode=r'train')
 
 
 	args = parser.parse_args()
@@ -147,8 +150,13 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	model_name = args.model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+	mode = args.mode
+
 
 	if model_name == 'yolo':
 		create_yolo_labels(folder_image_path, folder_label_path)
 	else:
-		train()
+		if mode == 'train':
+			train()
+		elif mode == 'eval':
+			eval()
