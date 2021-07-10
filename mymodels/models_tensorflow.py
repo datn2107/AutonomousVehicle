@@ -2,22 +2,13 @@ import tensorflow as tf
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from models.research.object_detection.utils import config_util
 from models.research.object_detection.builders import model_builder
 
 
 def load_model_from_config(model_config_path, num_class):
-    '''
-    Build and setup model by it's config
-    
-    :param model_config_path: Path of model config 
-    :param num_class: Number of class that model need to classify
-    
-    :return:    
-        model: Model is described by config and setup by user  
-    ''' #
     # load the configuration file into a dictionary
     configs = config_util.get_configs_from_pipeline_file(model_config_path)
     # get model from configs
@@ -32,17 +23,6 @@ def load_model_from_config(model_config_path, num_class):
 
 
 def load_checkpoint_for_model(model, checkpoint_path, batch_size, initiation_model=True):
-    '''
-    Load checkpoint to model 
-    
-    :param model: Model that you want to upload checkpoint  
-    :param checkpoint_path: Path to checkpoint file 
-    :param batch_size: Use to declare dummy image 
-    :param first_time: == True if load weight from origin model (model train by Tensorflow)
-    
-    :return: 
-        model: Model that ready to be use 
-    ''' #
     ## Load checkpoint of necessary part
     if initiation_model:
         # only load box_predictor and feature_extractor part
@@ -66,13 +46,6 @@ def load_checkpoint_for_model(model, checkpoint_path, batch_size, initiation_mod
 
 
 def define_fine_tune_list(model):
-    '''
-    Define layers that you want to fine tune
-    
-    :param model: Model that you want to train
-    :return:
-        to_find_tune: List of layer that you want to fine-tune  
-    ''' #
     to_fine_tune = []
     prefixes_to_train = ['WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalClassHead',
                          'WeightSharedConvolutionalBoxPredictor/WeightSharedConvolutionalBoxHead']
@@ -91,16 +64,7 @@ def train_step_fn(images_batch,
                   model,
                   optimizer,
                   to_fine_tune):
-    """
-    A single training iteration.
 
-    :param images_batch: A dataset shape [batch, height, width, 3] contain batch Image Tensor of type tf.float32
-    :param groundtruth_boxes_list: A list of Tensors of shape [N_i, 4] representing groundtruth boxes for each image in the batch.
-    :param groundtruth_classes_list: A list of Tensors of shape [N_i, num_classes] representing groundtruth class of each box for each image in the batch.
-
-    :return:
-        A scalar tensor representing the total loss for the input batch.
-    """  #
     # Provide groundtruth
     model.provide_groundtruth(groundtruth_boxes_list=groundtruth_boxes_list,
                               groundtruth_classes_list=groundtruth_classes_list)
@@ -132,16 +96,6 @@ def evaluate_loss(image_batch,
                   groundtruth_boxes_list,
                   groundtruth_classes_list,
                   model):
-    '''
-    Evaluate model by validation test
-    
-    :param val_image_dataset: A dataset shape [1, height, width, 3] contain batch Tensor of type tf.float32.
-    :param val_list_bboxes: A list of Tensors of shape [N_i, 4] representing groundtruth boxes for each image in the batch.
-    :param val_list_classes: A list of Tensors of shape [N_i, num_classes] representing groundtruth class of each box for each image in the batch. 
-    
-    :return: 
-        Total loss on validation dataset
-    ''' #
 
     true_shape_tensor = tf.constant(1 * [[640, 640, 3]], dtype=tf.int32)
 

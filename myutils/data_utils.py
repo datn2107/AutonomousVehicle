@@ -2,6 +2,7 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.basename(__file__)))
 
+import json
 import pandas
 import pandas as pd
 from typing import Tuple
@@ -27,7 +28,7 @@ def load_list_data(dataframe: pandas.DataFrame, folder_image_path: str,
                    label_off_set: int = 1, norm: bool = True)\
                                      -> Tuple[list, list, list]:
     # Clean error bounding box (area <= 100)
-    dataframe = dataframe[(dataframe['x2']-dataframe['x1']) * (dataframe['y2']-dataframe['y1']) > 100].reset_index(
+    dataframe = dataframe[(dataframe['x2']-dataframe['x1']) * (dataframe['y2']-dataframe['y1']) > 90].reset_index(
         drop=True)
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
     if norm:
@@ -47,7 +48,24 @@ def load_list_data(dataframe: pandas.DataFrame, folder_image_path: str,
     return list_image_path, list_boxes, list_classes
 
 
-def create_yolo_labels(folder_image_path: str, folder_label_path: str) -> None:
+def create_yolo_labels(folder_image_path: str, folder_label_path: str, dataset_name: str = "bdd100k", num_class: int = 13) -> None:
+    def create_yaml(dataset_name: str, num_class: int):
+        source_path = os.path.dirname(os.path.dirname(os.path.basename(__file__)))
+        js = open(os.path.join(folder_label_path, "id_category_dict.json"))
+        id_category = json.load(js)
+
+        yaml = open(os.path.join(source_path, dataset_name + ".yaml"), 'w')
+        yaml.write("path: {folder_data}\n".format(folder_data=os.path.dirname(folder_image_path)))
+        yaml.write("train: {folder_image_train}\n".format(folder_image_train=os.path.join(folder_image_path, "train")))
+        yaml.write("val: {folder_image_test}\n".format(folder_image_test=os.path.join(folder_image_path, "test")))
+        yaml.write("nc: {num_class}\n".format(num_class=str(num_class)))
+
+        list_cat = []
+        for key in id_category.keys():
+            list_cat.append(key)
+        yaml.write("names: {list_category}\n".format(list_category=list_cat))
+        yaml.close()
+
     def create_labels_txt(dataframe: pandas.DataFrame, folder_image_path: str, folder_label_path: str) -> None:
         list_image_path, list_boxes, list_classes = load_list_data(dataframe, folder_image_path)
         for image, boxes, classes in zip(list_image_path, list_boxes, list_classes):
@@ -62,10 +80,9 @@ def create_yolo_labels(folder_image_path: str, folder_label_path: str) -> None:
                 file.write(str(box[3] - box[1]) + '\n')
             file.close()
 
-    # Create labels for yolo
+    create_yaml(dataset_name, num_class)
     for dir in ["train", "test"]:
         if (not os.path.isdir(os.path.join(folder_label_path, dir))):
             os.mkdir(os.path.join(folder_label_path, dir))
             dataframe = pd.read_csv(os.path.join(folder_label_path, dir + ".csv"))
             create_labels_txt(dataframe, os.path.join(folder_image_path, dir), os.path.join(folder_label_path, dir))
-

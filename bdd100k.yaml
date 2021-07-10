@@ -1,8 +1,5 @@
-path: D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\
-train: images\train
-val: images\test
-
+path: D:\Machine Learning Project\Autonomous Driving\Data\Object Detection
+train: D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images\train
+val: D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images\test
 nc: 13
-names: ["traffic light", "traffic sign", "car", "pedestrian", "bus", "truck", "rider", "bicycle", "motorcycle", "train", "other vehicle", "other person", "trailer"]
-
-
+names: ['traffic light', 'traffic sign', 'car', 'pedestrian', 'bus', 'truck', 'rider', 'bicycle', 'motorcycle', 'train', 'other vehicle', 'other person', 'trailer']

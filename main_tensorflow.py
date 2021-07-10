@@ -4,13 +4,16 @@ import tensorflow as tf
 import pandas as pd
 import argparse
 
-from utils.data_utils_tensorflow import load_data_from_dataframe
-from model.training_utils_tensorflow import load_model_from_config
-from model.training_utils_tensorflow import load_checkpoint_for_model
-from model.training_utils_tensorflow import define_fine_tune_list
-from model.detection_utils_tensorflow import detect
-from model.detection_utils_tensorflow import visualize_detection
+from myutils.data_utils_tensorflow import load_dataset
+from mymodels.models_tensorflow import load_model_from_config
+from mymodels.models_tensorflow import load_checkpoint_for_model
+from mymodels.models_tensorflow import define_fine_tune_list
+from mymodels.detection_utils_tensorflow import detect
+# from model.detection_utils_tensorflow import visualize_detection
 
+
+def load_model():
+    pass
 
 def training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes):
     ''' Prepare model '''
@@ -64,38 +67,31 @@ def detection_by_lower_api(model, test_image_dataset):
         for id in range(detection_scores.shape[0]):
             list_boxes.append(detections_boxes[id])
 
-        visualize_detection(tf.squeeze(image).numpy(), list_boxes)
+        # visualize_detection(tf.squeeze(image).numpy(), list_boxes)
         break
 
+def eval():
+    pass
 
-def main():
-    ''' Prepare Data '''
-    ## Load data from dataframe for training, validation and testing
-    #(df_train, df_val, df_test) = split_dataframe_for_training_validation_testing(folder_label_path)
+def train():
     df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-    df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-    (train_image_dataset, train_list_boxes, train_list_classes) = load_data_from_dataframe(dataframe=df_train,
-                                                                                           folder_image_path=os.path.join(folder_image_path, 'train'),
-                                                                                           height=height, width=width,
-                                                                                           batch_size=batch_size,
-                                                                                           num_class=num_class)
-    # (val_image_dataset, val_list_boxes, val_list_classes) = load_data_from_dataframe(dataframe=df_val,
-    #                                                                                  folder_image_path=os.path.join(folder_image_path, 'train'),
-    #                                                                                  height=height, width=width,
-    #                                                                                  batch_size=batch_size,
-    #                                                                                  num_class=num_class)
-    (test_image_dataset, test_list_boxes, test_list_classes) = load_data_from_dataframe(dataframe=df_test,
-                                                                                        folder_image_path=os.path.join(folder_image_path, 'test'),
-                                                                                        height=height, width=width,
-                                                                                        batch_size=1,
-                                                                                        num_class=num_class)
+    (train_image_dataset, train_list_boxes, train_list_classes) = load_dataset(dataframe=df_train,
+                                                                               folder_image_path=os.path.join(folder_image_path, 'train'),
+                                                                               height=height, width=width,
+                                                                               batch_size=batch_size,
+                                                                               num_class=num_class)
 
-    '''Training'''
     model = training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes)
 
-    '''Detection'''
-    detection_by_lower_api(model, test_image_dataset)
 
+    df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+    (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
+                                                                            folder_image_path=os.path.join(folder_image_path, 'test'),
+                                                                            height=height, width=width,
+                                                                            batch_size=1,
+                                                                            num_class=num_class)
+
+    detection_by_lower_api(model, test_image_dataset)
 
 
 if __name__ == "__main__":
@@ -103,10 +99,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     # Folder Image Path argument
     parser.add_argument('--fip', type=str, help='Folder Image Path')
-    parser.set_defaults(fip=r'D:\Autonomous Driving\Data\Object Detection\image')
+    parser.set_defaults(fip=r'D:\Autonomous Driving\Data\Object Detection\images')
     # Folder Label Path argument
     parser.add_argument('--flp', type=str, help='Folder Label Path')
-    parser.set_defaults(flp=r'D:\Autonomous Driving\Data\Object Detection\label')
+    parser.set_defaults(flp=r'D:\Autonomous Driving\Data\Object Detection\labels')
     # Batch Size argument
     parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
     parser.set_defaults(bs=8)
@@ -133,4 +129,16 @@ if __name__ == "__main__":
     num_epoch = 30
     initiation_model = True
 
-    main()
+
+    labels = []
+    for file in os.listdir(r'D:\Machine Learning Project\Autonomous Driving\Data\kitti\training\label_2'):
+        f = open(os.path.join(r'D:\Machine Learning Project\Autonomous Driving\Data\kitti\training\label_2', file))
+        for line in f.readlines():
+            label = line.split()[0]
+            if label not in labels:
+                labels.append(label)
+        f.close()
+
+    print(labels)
+
+    # main()

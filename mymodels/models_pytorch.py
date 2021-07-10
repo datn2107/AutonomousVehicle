@@ -25,6 +25,20 @@ def ssd300_vgg16(num_class: int) -> nn.Module:
     return model
 
 
+LIST_MODEL = {'faster_rcnn': faster_rcnn(num_class=13),
+			  'ssd': ssd300_vgg16(num_class=13)}
+DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+def load_model(model_name: str, ckpt: str):
+    model = LIST_MODEL.get(model_name, None)
+
+    if os.path.exists(ckpt):
+        model.load_state_dict(torch.load(ckpt))
+    model.to(DEVICE)
+
+    return model
+
+
 # class MultiBoxLoss(nn.Module):
 #     """
 #     The MultiBox loss, a loss function for object detection.

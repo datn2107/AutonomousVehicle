@@ -5,40 +5,18 @@ sys.path.append(os.path.dirname(os.path.basename(__file__)))
 import pandas as pd
 import argparse
 import numpy as np
-import logging
 
 import torch
 import torch.utils.data
 
-from utils.data_utils_pytorch import load_dataset
-from utils.models_pytorch import ssd300_vgg16
-from utils.models_pytorch import faster_rcnn
-from utils.train_pytorch import train_one_epoch
-# from vision.references.detection.engine import train_one_epoch
+from myutils.data_utils_pytorch import load_dataset
+from mymodels.models_pytorch import load_model
+# from utils.train_pytorch import train_one_epoch
+from vision.references.detection.engine import train_one_epoch
 from vision.references.detection.engine import evaluate
-from utils.draw_bounding_box import visualize_detection
-from utils.data_utils import load_list_data
-from utils.data_utils import create_yolo_labels
-
-
-
-def load_model(ckpt=None):
-	if ckpt == None:
-		ckpt = checkpoint_path
-
-	model = None
-	if model_name == 'faster_rcnn':
-		model = faster_rcnn(num_class=13)
-	elif model_name == 'ssd':
-		model = ssd300_vgg16(num_class=13)
-	else:
-		logging.getLogger().error("No model name: " + model_name)
-
-	if os.path.exists(ckpt):
-		model.load_state_dict(torch.load(ckpt))
-	model.to(device)
-
-	return model
+from myutils.draw_bounding_box import visualize_detection
+from myutils.data_utils import load_list_data
+from myutils.data_utils import create_yolo_labels
 
 
 def eval():
@@ -52,7 +30,7 @@ def eval():
 	for index in range(0,40):
 		ckpt = os.path.join(checkpoint_dir, file_name.format(index=index))
 		print("Evaluate " + file_name)
-		model = load_model(ckpt)
+		model = load_model(model_name, ckpt)
 		evaluate(model, test_dataset, device=device)
 
 
@@ -61,7 +39,7 @@ def train():
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
 								 batch_size, shuffle=True, size=(244,244))
 
-	model = load_model()
+	model = load_model(model_name, checkpoint_path)
 	epochs = 40
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
@@ -78,7 +56,7 @@ def visualize_result():
 	## Load dataframe
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 
-	model = load_model()
+	model = load_model(model_name, checkpoint_path)
 
 	## Visualize Detection
 	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, folder_image_path,
@@ -124,7 +102,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	# Folder Image Path argument
 	parser.add_argument('--images', type=str, help='Folder Image Path')
-	parser.set_defaults(labels=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images')
+	parser.set_defaults(images=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\images')
 	# Folder Label Path argument
 	parser.add_argument('--labels', type=str, help='Folder Label Path')
 	parser.set_defaults(labels=r'D:\Machine Learning Project\Autonomous Driving\Data\Object Detection\labels')
