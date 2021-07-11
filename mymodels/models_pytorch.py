@@ -10,7 +10,7 @@ from vision.torchvision.models.detection import ssd
 
 
 def faster_rcnn(num_class: int) -> nn.Module:
-    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, trainable_backbone_layers=4)
+    model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, trainable_backbone_layers=5)
     input_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(input_features, num_class + 1)
 

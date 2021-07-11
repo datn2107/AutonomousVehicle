@@ -47,54 +47,61 @@ def train():
 	for epoch in range(epochs):
 		print(f"Epoch {epoch}\n-------------------------------")
 		# train_one_epoch(model, optimizer, train_dataset, device)
-		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=500) # torchvision version
+		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=4000) # torchvision version
 		torch.save(model.state_dict(), os.path.join(checkpoint_dir, 'epoch_' + str(epoch) + '.pt'))
 	print("Done!")
 
 
 def visualize_result():
-	## Load dataframe
-	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+	df_test = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
+	# model = load_model(model_name, checkpoint_path)
 
-	model = load_model(model_name, checkpoint_path)
-
-	## Visualize Detection
-	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, folder_image_path,
+	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "train"),
 																 label_off_set=0, norm=False)
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
 
-	for index, (image, target) in enumerate(test_dataset):
-		# Find loss of detection
-		target = [{key: value.to(device) for key, value in target[0].items()}]
-		loss = model(image[0].unsqueeze(0).to(device), target)
-		# calculate average loss
-		avg_loss = sum(val for val in loss.values())/len(loss.values())
-
-		# Visualize image that have too many error
-		if avg_loss > 0.5:
-			# turn of training mode
-			model.eval()
-
-			with torch.no_grad():
-				# get list_box and list_class in prediction
-				prediction = model(image[0].unsqueeze(0).to(device))
-				list_box = []
-				list_class = []
-				for dict in prediction:
-					boxes, classes, scores = dict.values()
-				for id in range(len(boxes)):
-					if scores[id] > 0.75:
-						list_box.append(boxes[id])
-						list_class.append(classes[id].cpu().data.numpy())
-
-				# visualize prediction and ground true by image
-				visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-									image_name='prediction_' + str(index) + '.png')
-				visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-									image_name='groundth_true_' + str(index) + '.png')
-
-		if index > 20:
+	count = 0
+	for index, path in enumerate(list_image_path):
+		if len(list_boxes[index]) < 4:
+			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+								image_name='groundth_true_' + str(index) + '.png')
+			count += 1
+		if count > 50:
 			break
+
+	# test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
+	#
+	# for index, (image, target) in enumerate(test_dataset):
+	# 	# Find loss of detection
+	# 	target = [{key: value.to(device) for key, value in target[0].items()}]
+	# 	loss = model(image[0].unsqueeze(0).to(device), target)
+	# 	# calculate average loss
+	# 	avg_loss = sum(val for val in loss.values())/len(loss.values())
+	#
+	# 	# Visualize image that have too many error
+	# 	if avg_loss > 0.5:
+	# 		# turn of training mode
+	# 		model.eval()
+	#
+	# 		with torch.no_grad():
+	# 			# get list_box and list_class in prediction
+	# 			prediction = model(image[0].unsqueeze(0).to(device))
+	# 			list_box = []
+	# 			list_class = []
+	# 			for dict in prediction:
+	# 				boxes, classes, scores = dict.values()
+	# 			for id in range(len(boxes)):
+	# 				if scores[id] > 0.75:
+	# 					list_box.append(boxes[id])
+	# 					list_class.append(classes[id].cpu().data.numpy())
+	#
+	# 			# visualize prediction and ground true by image
+	# 			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+	# 								image_name='prediction_' + str(index) + '.png')
+	# 			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+	# 								image_name='groundth_true_' + str(index) + '.png')
+	#
+	# 	if index > 20:
+	# 		break
 
 
 if __name__ == '__main__':
@@ -130,6 +137,7 @@ if __name__ == '__main__':
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 	mode = args.mode
 
+	# visualize_result()
 
 	if model_name == 'yolo':
 		create_yolo_labels(folder_image_path, folder_label_path)

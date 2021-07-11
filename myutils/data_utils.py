@@ -27,7 +27,7 @@ def split_dataframe(folder_label_path: str, shuffle: bool = True) \
 def load_list_data(dataframe: pandas.DataFrame, folder_image_path: str,
                    label_off_set: int = 1, norm: bool = True)\
                                      -> Tuple[list, list, list]:
-    # Clean error bounding box (area <= 100)
+    # Clean error bounding box (area <= 70)
     dataframe = dataframe[(dataframe['x2']-dataframe['x1']) * (dataframe['y2']-dataframe['y1']) > 90].reset_index(
         drop=True)
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
@@ -55,15 +55,15 @@ def create_yolo_labels(folder_image_path: str, folder_label_path: str, dataset_n
         id_category = json.load(js)
 
         yaml = open(os.path.join(source_path, dataset_name + ".yaml"), 'w')
-        yaml.write("path: {folder_data}\n".format(folder_data=os.path.dirname(folder_image_path)))
-        yaml.write("train: {folder_image_train}\n".format(folder_image_train=os.path.join(folder_image_path, "train")))
-        yaml.write("val: {folder_image_test}\n".format(folder_image_test=os.path.join(folder_image_path, "test")))
-        yaml.write("nc: {num_class}\n".format(num_class=str(num_class)))
+        yaml.write(f"path: {os.path.dirname(folder_image_path)}\n")
+        yaml.write(f"train: {os.path.join(folder_image_path, "train")}\n")
+        yaml.write(f"val: {os.path.join(folder_image_path, "test")}\n\n")
 
+        yaml.write(f"nc: {str(num_class)}\n")
         list_cat = []
         for key in id_category.keys():
             list_cat.append(key)
-        yaml.write("names: {list_category}\n".format(list_category=list_cat))
+        yaml.write(f"names: {list_cat}\n")
         yaml.close()
 
     def create_labels_txt(dataframe: pandas.DataFrame, folder_image_path: str, folder_label_path: str) -> None:
