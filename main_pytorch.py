@@ -20,10 +20,7 @@ from myutils.data_utils import create_yolo_labels
 
 
 def eval():
-	## Load dataframe
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-
-	## Load dataset
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
 
 	file_name = "epoch_{index}.pt"
@@ -37,7 +34,7 @@ def eval():
 def train():
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
-								 batch_size, shuffle=True, size=(244,244))
+								 batch_size, shuffle=True)
 
 	model = load_model(model_name, checkpoint_path)
 	epochs = 40

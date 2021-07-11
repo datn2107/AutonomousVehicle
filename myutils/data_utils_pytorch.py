@@ -16,7 +16,7 @@ from .data_utils import load_list_data
 ImageT = torch.Tensor
 TargetT = Dict[str, torch.Tensor]
 
-class BDD100kDataset(torch.utils.data.Dataset):
+class ObjectDetectionDataset(torch.utils.data.Dataset):
     def __init__(self, list_image_path: List[str], list_boxes: List[Any], list_classes: List[Any],
                  transforms: Callable[[Any], torch.tensor]):
         self.list_image_path = list_image_path
@@ -54,8 +54,8 @@ def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size
                                                                  label_off_set=0, norm=False)
 
     # As default, size = 1 is mean keep the original size of image
-    dataset = BDD100kDataset(list_image_path, list_boxes, list_classes,
-                             transforms.Compose([transforms.Resize(size), transforms.ToTensor()]))
+    dataset = ObjectDetectionDataset(list_image_path, list_boxes, list_classes,
+                                     transforms.Compose([transforms.Resize(size), transforms.ToTensor()]))
     dataset = DataLoader(dataset, batch_size=batch_size, drop_last=True, shuffle=shuffle, num_workers=2,
                          collate_fn=collate_fn)
 

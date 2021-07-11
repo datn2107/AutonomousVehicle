@@ -27,7 +27,7 @@ def split_dataframe(folder_label_path: str, shuffle: bool = True) \
 def load_list_data(dataframe: pandas.DataFrame, folder_image_path: str,
                    label_off_set: int = 1, norm: bool = True)\
                                      -> Tuple[list, list, list]:
-    # Clean error bounding box (area <= 70)
+    # Clean error bounding box (area <= 90)
     dataframe = dataframe[(dataframe['x2']-dataframe['x1']) * (dataframe['y2']-dataframe['y1']) > 90].reset_index(
         drop=True)
     dataframe['name'] = dataframe['name'].apply(lambda name: os.path.join(folder_image_path, name))
