@@ -56,8 +56,8 @@ def create_yolo_labels(folder_image_path: str, folder_label_path: str, dataset_n
 
         yaml = open(os.path.join(source_path, dataset_name + ".yaml"), 'w')
         yaml.write(f"path: {os.path.dirname(folder_image_path)}\n")
-        yaml.write(f"train: {os.path.join(folder_image_path, "train")}\n")
-        yaml.write(f"val: {os.path.join(folder_image_path, "test")}\n\n")
+        yaml.write(f"train: {os.path.join(folder_image_path, 'train')}\n")
+        yaml.write(f"val: {os.path.join(folder_image_path, 'test')}\n\n")
 
         yaml.write(f"nc: {str(num_class)}\n")
         list_cat = []
