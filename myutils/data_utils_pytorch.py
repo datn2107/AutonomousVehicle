@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.basename(__file__)))\
 
 import pandas
-from typing import Any, List, Callable, Tuple, Dict, Union
+from typing import Any, List, Callable, Tuple, Dict, Union, Optional
 from PIL import Image
 
 import torch
@@ -49,13 +49,16 @@ def collate_fn(batch: List[Tuple[ImageT, TargetT]]) -> Tuple[Tuple[ImageT, ...],
 
 
 def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size: int, shuffle: bool = True,
-                 size: Union[int, tuple] = 1) -> DataLoader:
+                 size: Optional[Union[int, tuple]] = None) -> DataLoader:
     (list_image_path, list_boxes, list_classes) = load_list_data(dataframe, folder_image_path,
                                                                  label_off_set=0, norm=False)
 
     # As default, size = 1 is mean keep the original size of image
+    transforms_ = transforms.ToTensor()
+    if (size != None):
+        transforms_ = transforms.Compose([transforms.Resize(size), transforms.ToTensor()])
     dataset = ObjectDetectionDataset(list_image_path, list_boxes, list_classes,
-                                     transforms.Compose([transforms.Resize(size), transforms.ToTensor()]))
+                                     transforms_)
     dataset = DataLoader(dataset, batch_size=batch_size, drop_last=True, shuffle=shuffle, num_workers=2,
                          collate_fn=collate_fn)
 
