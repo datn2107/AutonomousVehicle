@@ -33,6 +33,7 @@ def load_model(model_name: str, ckpt: str):
     model = LIST_MODEL.get(model_name, None)
 
     if os.path.exists(ckpt):
+        print("Load your own check point !!!")
         model.load_state_dict(torch.load(ckpt))
     model.to(DEVICE)
 
