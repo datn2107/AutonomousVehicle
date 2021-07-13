@@ -143,4 +143,6 @@ if __name__ == '__main__':
 	if model_name == 'yolo':
 		create_yolo_labels(folder_image_path, folder_label_path)
 	else:
-		visualize_result(0.75)
+		train()
+		# eval()
+		# visualize_result(0.75)
