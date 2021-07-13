@@ -67,13 +67,24 @@ def visualize_result(thresh_hold):
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "test"),
 																 label_off_set=0, norm=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size=1, shuffle=False)
 	model = load_model(model_name, checkpoint_path)
-	model.eval()
 
-	for index, gt_image_path in enumerate(list_image_path):
-		image = np.array(Image.open(gt_image_path).convert('RGB'))
+	count = 0
+	for index, (image, target) in enumerate(test_dataset):
+		target = [{key: value.to(device) for key, value in target[0].items()}]
+		loss = model(image[0].unsqueeze(0).to(device), target)
+		avg_loss = sum(val for val in loss.values())/len(loss.values())
+
+		if avg_loss < 0.7:
+			continue
+
+		image = np.array(Image.open(list_image_path[index]).convert('RGB'))
+		gt_image_path = list_image_path[index]
 		gt_list_box = list_boxes[index]
 		gt_list_class = list_classes[index]
+
+		model.eval()
 		with torch.no_grad():
 			trans_image = transforms.ToTensor()(Image.open(gt_image_path).convert('RGB')).unsqueeze(0).to(device)
 			model_time = time.time()
@@ -95,7 +106,10 @@ def visualize_result(thresh_hold):
 
 			cb_image = np.concatenate((gt_image, pd_image), axis=1)
 			plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
-		break
+
+			count += 1
+			if count > 50:
+				break
 
 
 if __name__ == '__main__':
