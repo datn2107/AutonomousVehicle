@@ -72,10 +72,11 @@ def visualize_result(thresh_hold):
 
 	count = 0
 	for index, (image, target) in enumerate(test_dataset):
+		model.train()
 		target = [{key: value.to(device) for key, value in target[0].items()}]
 		loss = model(image[0].unsqueeze(0).to(device), target)
 		avg_loss = sum(val for val in loss.values())/len(loss.values())
-
+		
 		if avg_loss < 0.7:
 			continue
 
