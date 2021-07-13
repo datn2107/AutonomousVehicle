@@ -2,27 +2,31 @@ import os
 import sys
 sys.path.append(os.path.dirname(os.path.basename(__file__)))
 
+import time
 import pandas as pd
 import argparse
 import numpy as np
 import re
+from PIL import Image
 
 import torch
 import torch.utils.data
+import torchvision.transforms as transforms
 
 from myutils.data_utils_pytorch import load_dataset
 from mymodels.models_pytorch import load_model
 # from utils.train_pytorch import train_one_epoch
 from vision.references.detection.engine import train_one_epoch
 from vision.references.detection.engine import evaluate
-from myutils.draw_bounding_box import visualize_detection
+from myutils.draw_bounding_box import plot_detection
+from myutils.draw_bounding_box import plot_image
 from myutils.data_utils import load_list_data
 from myutils.data_utils import create_yolo_labels
 
 
 def eval():
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size=1, shuffle=False)
 
 	file_name = "epoch_{index}.pt"
 	for index in range(0,40):
@@ -34,7 +38,7 @@ def eval():
 
 def train():
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size=1, shuffle=False)
 
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
@@ -55,56 +59,43 @@ def train():
 	print("Done!")
 
 
-def visualize_result():
-	df_test = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
-	# model = load_model(model_name, checkpoint_path)
+def visualize_result(thresh_hold):
+	save_result_path = os.path.join(os.path.dirname(__file__),'VisualizeResult')
+	if not os.path.exists(save_result_path):
+		os.makedirs(os.path.join(os.path.dirname(__file__),'VisualizeResult'))
 
-	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "train"),
+	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "test"),
 																 label_off_set=0, norm=False)
+	model = load_model(model_name, checkpoint_path)
+	model.eval()
 
-	count = 0
-	for index, path in enumerate(list_image_path):
-		if len(list_boxes[index]) < 4:
-			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-								image_name='groundth_true_' + str(index) + '.png')
-			count += 1
-		if count > 50:
-			break
+	for index, gt_image_path in enumerate(list_image_path):
+		image = np.array(Image.open(gt_image_path).convert('RGB'))
+		gt_list_box = list_boxes[index]
+		gt_list_class = list_classes[index]
+		with torch.no_grad():
+			trans_image = transforms.ToTensor()(Image.open(gt_image_path).convert('RGB')).unsqueeze(0).to(device)
+			model_time = time.time()
+			prediction = model(trans_image)
+			model_time = time.time() - model_time
+			print("time: " + str(round(model_time,3)) + "s")
 
-	# test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
-	#
-	# for index, (image, target) in enumerate(test_dataset):
-	# 	# Find loss of detection
-	# 	target = [{key: value.to(device) for key, value in target[0].items()}]
-	# 	loss = model(image[0].unsqueeze(0).to(device), target)
-	# 	# calculate average loss
-	# 	avg_loss = sum(val for val in loss.values())/len(loss.values())
-	#
-	# 	# Visualize image that have too many error
-	# 	if avg_loss > 0.5:
-	# 		# turn of training mode
-	# 		model.eval()
-	#
-	# 		with torch.no_grad():
-	# 			# get list_box and list_class in prediction
-	# 			prediction = model(image[0].unsqueeze(0).to(device))
-	# 			list_box = []
-	# 			list_class = []
-	# 			for dict in prediction:
-	# 				boxes, classes, scores = dict.values()
-	# 			for id in range(len(boxes)):
-	# 				if scores[id] > 0.75:
-	# 					list_box.append(boxes[id])
-	# 					list_class.append(classes[id].cpu().data.numpy())
-	#
-	# 			# visualize prediction and ground true by image
-	# 			visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
-	# 								image_name='prediction_' + str(index) + '.png')
-	# 			visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
-	# 								image_name='groundth_true_' + str(index) + '.png')
-	#
-	# 	if index > 20:
-	# 		break
+			list_box = []
+			list_class = []
+			for dict in prediction:
+				boxes, classes, scores = dict.values()
+			for id in range(len(boxes)):
+				if scores[id] > thresh_hold:
+					list_box.append(boxes[id])
+					list_class.append(classes[id].cpu().data.numpy())
+
+			gt_image = plot_detection(image=image.copy(), boxes=gt_list_box, classes=gt_list_class)
+			pd_image = plot_detection(image=image.copy(), boxes=list_box, classes=list_class)
+
+			cb_image = np.concatenate((gt_image, pd_image), axis=1)
+			plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
+		break
 
 
 if __name__ == '__main__':
@@ -121,13 +112,10 @@ if __name__ == '__main__':
 	parser.set_defaults(batch=8)
 	# Checkpoint Path argument
 	parser.add_argument('--checkpoint', type=str, help='Save Checkpoint Path (File)')
-	parser.set_defaults(checkpoint=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
+	parser.set_defaults(checkpoint=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_0.pt')
 	# Select Model
 	parser.add_argument('--model', type=str, help='Model you want to use')
 	parser.set_defaults(model=r'faster_rcnn')
-	# Select Mode
-	parser.add_argument('--mode', type=str)
-	parser.set_defaults(mode=r'train')
 
 
 	args = parser.parse_args()
@@ -138,14 +126,10 @@ if __name__ == '__main__':
 	checkpoint_dir = os.path.dirname(checkpoint_path)
 	model_name = args.model
 	device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-	mode = args.mode
 
 	# visualize_result()
 
 	if model_name == 'yolo':
 		create_yolo_labels(folder_image_path, folder_label_path)
 	else:
-		if mode == 'train':
-			train()
-		elif mode == 'eval':
-			eval()
+		train()
