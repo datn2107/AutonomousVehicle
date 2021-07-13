@@ -70,47 +70,45 @@ def visualize_result(thresh_hold):
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size=1, shuffle=False)
 	model = load_model(model_name, checkpoint_path)
 
-	count = 0
 	for index, (image, target) in enumerate(test_dataset):
 		model.train()
 		target = [{key: value.to(device) for key, value in target[0].items()}]
 		loss = model(image[0].unsqueeze(0).to(device), target)
 		avg_loss = sum(val for val in loss.values())/len(loss.values())
-		
-		if avg_loss < 0.7:
-			continue
 
-		image = np.array(Image.open(list_image_path[index]).convert('RGB'))
-		gt_image_path = list_image_path[index]
-		gt_list_box = list_boxes[index]
-		gt_list_class = list_classes[index]
+		if loss['loss_box_reg'] > 0.5:
+			image = np.array(Image.open(list_image_path[index]).convert('RGB'))
+			gt_image_path = list_image_path[index]
+			gt_list_box = list_boxes[index]
+			gt_list_class = list_classes[index]
 
-		model.eval()
-		with torch.no_grad():
-			trans_image = transforms.ToTensor()(Image.open(gt_image_path).convert('RGB')).unsqueeze(0).to(device)
-			model_time = time.time()
-			prediction = model(trans_image)
-			model_time = time.time() - model_time
-			print("time: " + str(round(model_time,3)) + "s")
+			model.eval()
+			with torch.no_grad():
+				trans_image = transforms.ToTensor()(Image.open(gt_image_path).convert('RGB')).unsqueeze(0).to(device)
+				model_time = time.time()
+				prediction = model(trans_image)
+				model_time = time.time() - model_time
+				print("time: " + str(round(model_time,3)) + "s")
 
-			list_box = []
-			list_class = []
-			for dict in prediction:
-				boxes, classes, scores = dict.values()
-			for id in range(len(boxes)):
-				if scores[id] > thresh_hold:
-					list_box.append(boxes[id])
-					list_class.append(classes[id].cpu().data.numpy())
+				list_box = []
+				list_class = []
+				for dict in prediction:
+					boxes, classes, scores = dict.values()
+				for id in range(len(boxes)):
+					if scores[id] > thresh_hold:
+						list_box.append(boxes[id])
+						list_class.append(classes[id].cpu().data.numpy())
 
-			gt_image = plot_detection(image=image.copy(), boxes=gt_list_box, classes=gt_list_class)
-			pd_image = plot_detection(image=image.copy(), boxes=list_box, classes=list_class)
+				gt_image = plot_detection(image=image.copy(), boxes=gt_list_box, classes=gt_list_class, image_type="Ground Truth")
+				pd_image = plot_detection(image=image.copy(), boxes=list_box, classes=list_class, image_type="Prediction")
 
-			cb_image = np.concatenate((gt_image, pd_image), axis=1)
-			plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
+				cb_image = np.concatenate((gt_image, pd_image), axis=1)
+				plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
 
-			count += 1
-			if count > 50:
 				break
+
+				# if (len(os.listdir(save_result_path)) > 50):
+				# 	break
 
 
 if __name__ == '__main__':

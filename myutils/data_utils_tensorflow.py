@@ -5,7 +5,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from data_utils import load_list_data
+from .data_utils import load_list_data
 
 
 def load_image(height, width):

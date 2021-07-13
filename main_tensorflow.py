@@ -78,10 +78,10 @@ def train():
     (train_image_dataset, train_list_boxes, train_list_classes) = load_dataset(dataframe=df_train,
                                                                                folder_image_path=os.path.join(folder_image_path, 'train'),
                                                                                height=height, width=width,
-                                                                               batch_size=batch_size,
+                                                                                batch_size=batch_size,
                                                                                num_class=num_class)
 
-    model = training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes)
+    # model = training_by_lower_api(train_image_dataset, train_list_boxes, train_list_classes)
 
 
     df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
@@ -95,33 +95,30 @@ def train():
 
 
 if __name__ == "__main__":
-    ''' Create args to feed argument from terminal '''
     parser = argparse.ArgumentParser()
     # Folder Image Path argument
-    parser.add_argument('--fip', type=str, help='Folder Image Path')
-    parser.set_defaults(fip=r'D:\Autonomous Driving\Data\Object Detection\images')
+    parser.add_argument('--images', type=str, help='Folder Image Path')
+    parser.set_defaults(images=r'D:\Autonomous Driving\Data\Object Detection\images')
     # Folder Label Path argument
-    parser.add_argument('--flp', type=str, help='Folder Label Path')
-    parser.set_defaults(flp=r'D:\Autonomous Driving\Data\Object Detection\labels')
+    parser.add_argument('--labels', type=str, help='Folder Label Path')
+    parser.set_defaults(labels=r'D:\Autonomous Driving\Data\Object Detection\labels')
     # Batch Size argument
-    parser.add_argument('--bs', type=int, help='Batch size to split image dataset')
-    parser.set_defaults(bs=8)
+    parser.add_argument('--batch', type=int, help='Batch size to split image dataset')
+    parser.set_defaults(batch=8)
     # Model config path
-    parser.add_argument('--mcp', type=str, help='Path to model config')
-    parser.set_defaults(mcp=r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config')
+    parser.add_argument('--config', type=str, help='Path to model config')
+    parser.set_defaults(config=r'D:\Autonomous Driving\SourceCode\models\research\object_detection\configs\tf2\ssd_resnet50_v1_fpn_640x640_coco17_tpu-8.config')
     # Model checkpoint path
-    parser.add_argument('--cp', type=str, help='Number class of each object')
-    parser.set_defaults(cp=r'D:\Autonomous Driving\SourceCode\checkpoint_ssd_resnet50_tensorflow')
+    parser.add_argument('--checkpoint', type=str, help='Number class of each object')
+    parser.set_defaults(checkpoint=r'D:\Autonomous Driving\SourceCode\checkpoint_ssd_resnet50_tensorflow')
 
-    ''' Take the values from args '''
     args = parser.parse_args()
-    folder_image_path = args.fip
-    folder_label_path = args.flp
-    model_config_path = args.mcp
-    checkpoint_path = args.cp
-    batch_size = args.bs
+    folder_image_path = args.images
+    folder_label_path = args.labels
+    batch_size = args.batch
+    model_config_path = args.config
+    checkpoint_path = args.checkpoint
 
-    '''Initialize for essensial variable'''
     height = 640
     width = 640
     num_class = 13
@@ -129,16 +126,5 @@ if __name__ == "__main__":
     num_epoch = 30
     initiation_model = True
 
-
-    labels = []
-    for file in os.listdir(r'D:\Machine Learning Project\Autonomous Driving\Data\kitti\training\label_2'):
-        f = open(os.path.join(r'D:\Machine Learning Project\Autonomous Driving\Data\kitti\training\label_2', file))
-        for line in f.readlines():
-            label = line.split()[0]
-            if label not in labels:
-                labels.append(label)
-        f.close()
-
-    print(labels)
 
     # main()
