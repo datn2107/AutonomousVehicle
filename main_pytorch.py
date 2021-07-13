@@ -105,10 +105,8 @@ def visualize_result(thresh_hold):
 				cb_image = np.concatenate((gt_image, pd_image), axis=1)
 				plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
 
-				break
-
-				# if (len(os.listdir(save_result_path)) > 50):
-				# 	break
+				if (len(os.listdir(save_result_path)) > 50):
+					break
 
 
 if __name__ == '__main__':
