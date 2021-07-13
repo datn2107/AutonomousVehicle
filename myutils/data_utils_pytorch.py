@@ -31,12 +31,17 @@ class ObjectDetectionDataset(torch.utils.data.Dataset):
         image_path = self.list_image_path[index]
         image = Image.open(image_path).convert('RGB')
 
+        num_object = len(self.list_boxes[index])
         boxes = torch.as_tensor(self.list_boxes[index], dtype=torch.float32)
         labels = torch.as_tensor(self.list_classes[index], dtype=torch.int64)
 
         target = {}
         target["boxes"] = boxes
         target["labels"] = labels
+        # Create more target to evaluate by COCO metric
+        target["image_id"] = torch.tensor([index])
+        target["area"] = (boxes[:, 3] - boxes[:, 1]) * (boxes[:, 2] - boxes[:, 0])
+        target["iscrowd"] = torch.zeros((num_object,), dtype=torch.int64)
 
         if self.transforms is not None:
             image, target = (self.transforms(image), target)

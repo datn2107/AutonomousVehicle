@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.basename(__file__)))
 import pandas as pd
 import argparse
 import numpy as np
+import re
 
 import torch
 import torch.utils.data
@@ -36,12 +37,13 @@ def train():
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
 								 batch_size, shuffle=True)
 
+	start_epoch = int(re.findall(r'\d+', checkpoint_path)[-1]) + 1
 	model = load_model(model_name, checkpoint_path)
 	epochs = 40
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 	## Training
-	for epoch in range(epochs):
+	for epoch in range(start_epoch, epochs):
 		print(f"Epoch {epoch}\n-------------------------------")
 		# train_one_epoch(model, optimizer, train_dataset, device)
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=4000) # torchvision version
@@ -118,7 +120,7 @@ if __name__ == '__main__':
 	parser.set_defaults(checkpoint=r'D:\Machine Learning Project\Autonomous Driving\SourceCode\epoch_19.pt')
 	# Select Model
 	parser.add_argument('--model', type=str, help='Model you want to use')
-	parser.set_defaults(model=r'yolo')
+	parser.set_defaults(model=r'faster_rcnn')
 	# Select Mode
 	parser.add_argument('--mode', type=str)
 	parser.set_defaults(mode=r'train')
