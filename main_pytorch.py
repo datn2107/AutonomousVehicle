@@ -33,6 +33,9 @@ def eval():
 
 
 def train():
+	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size, shuffle=False)
+
 	df_train = pd.read_csv(os.path.join(folder_label_path, 'train.csv'))
 	train_dataset = load_dataset(df_train, os.path.join(folder_image_path,'train'),
 								 batch_size, shuffle=True)
@@ -48,6 +51,7 @@ def train():
 		# train_one_epoch(model, optimizer, train_dataset, device)
 		train_one_epoch(model, optimizer, train_dataset, device, epoch, print_freq=4000) # torchvision version
 		torch.save(model.state_dict(), os.path.join(checkpoint_dir, 'epoch_' + str(epoch) + '.pt'))
+		evaluate(model, test_dataset, device=device)
 	print("Done!")
 
 
