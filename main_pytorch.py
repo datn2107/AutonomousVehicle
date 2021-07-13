@@ -15,6 +15,7 @@ import torchvision.transforms as transforms
 
 from myutils.data_utils_pytorch import load_dataset
 from mymodels.models_pytorch import load_model
+from mymodels.models_pytorch import faster_rcnn
 # from utils.train_pytorch import train_one_epoch
 from vision.references.detection.engine import train_one_epoch
 from vision.references.detection.engine import evaluate
@@ -67,35 +68,39 @@ def visualize_result(thresh_hold):
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "test"),
 																 label_off_set=0, norm=False)
-	model = load_model(model_name, checkpoint_path)
-	model.eval()
+	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), 1, shuffle=False)
+	model = faster_rcnn(num_class=13)
+	model.load_state_dict(torch.load(checkpoint_path))
+	model.to(device)
 
-	for index, gt_image_path in enumerate(list_image_path):
-		image = np.array(Image.open(gt_image_path).convert('RGB'))
-		gt_list_box = list_boxes[index]
-		gt_list_class = list_classes[index]
-		with torch.no_grad():
-			trans_image = transforms.ToTensor()(Image.open(gt_image_path).convert('RGB')).unsqueeze(0).to(device)
-			model_time = time.time()
-			prediction = model(trans_image)
-			model_time = time.time() - model_time
-			print("time: " + str(round(model_time,3)) + "s")
+	for index, (image, target) in enumerate(test_dataset):
+		target = [{key: value.to(device) for key, value in target[0].items()}]
+		loss = model(image[0].unsqueeze(0).to(device), target)
+		avg_loss = sum(val for val in loss.values())/len(loss.values())
 
-			list_box = []
-			list_class = []
-			for dict in prediction:
-				boxes, classes, scores = dict.values()
-			for id in range(len(boxes)):
-				if scores[id] > thresh_hold:
-					list_box.append(boxes[id])
-					list_class.append(classes[id].cpu().data.numpy())
+		if avg_loss > 0.5:
+			model.eval()
+			with torch.no_grad():
+				prediction = model(image[0].unsqueeze(0).to(device))
+				list_box = []
+				list_class = []
+				for dict in prediction:
+					boxes, classes, scores = dict.values()
+					print(dict.values())
+				for id in range(len(boxes)):
+					if scores[id] > 0.75:
+						list_box.append(boxes[id])
+						list_class.append(classes[id].cpu().data.numpy())
 
-			gt_image = plot_detection(image=image.copy(), boxes=gt_list_box, classes=gt_list_class)
-			pd_image = plot_detection(image=image.copy(), boxes=list_box, classes=list_class)
+				# visualize prediction and ground true by image
+				# visualize_detection(image=np.array(image[0].numpy()), boxes=list_box, classes=list_class,
+				# 					image_name='prediction_' + str(index) + '.png')
+				# visualize_detection(image_path=list_image_path[index], boxes=list_boxes[index], classes=list_classes[index],
+				# 					image_name='groundth_true_' + str(index) + '.png')
+			break
 
-			cb_image = np.concatenate((gt_image, pd_image), axis=1)
-			plot_image(cb_image, os.path.join(save_result_path, f"result_{index}.png"))
-		break
+		if index > 20:
+			break
 
 
 if __name__ == '__main__':
@@ -132,4 +137,4 @@ if __name__ == '__main__':
 	if model_name == 'yolo':
 		create_yolo_labels(folder_image_path, folder_label_path)
 	else:
-		train()
+		visualize_result(0.75)
