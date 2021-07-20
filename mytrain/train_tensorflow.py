@@ -3,6 +3,7 @@ import tensorflow as tf
 
 @tf.function(experimental_relax_shapes=True)
 def train_step_fn(images_batch,
+                  height, width,
                   groundtruth_boxes_list,
                   groundtruth_classes_list,
                   model,
@@ -10,7 +11,7 @@ def train_step_fn(images_batch,
                   to_fine_tune):
     model.provide_groundtruth(groundtruth_boxes_list=groundtruth_boxes_list,
                               groundtruth_classes_list=groundtruth_classes_list)
-    true_shape_tensor = tf.constant(images_batch.shape[0] * [[640, 640, 3]], dtype=tf.int32)
+    true_shape_tensor = tf.constant(images_batch.shape[0] * [[height, width, 3]], dtype=tf.int32)
 
     with tf.GradientTape() as tape:
         preprocessed_image = model.preprocess(images_batch)[0]
@@ -30,10 +31,11 @@ def train_step_fn(images_batch,
 
 @tf.function(experimental_relax_shapes=True)
 def evaluate_loss(image_batch,
+                  height, width,
                   groundtruth_boxes_list,
                   groundtruth_classes_list,
                   model):
-    true_shape_tensor = tf.constant(1 * [[640, 640, 3]], dtype=tf.int32)
+    true_shape_tensor = tf.constant(1 * [[1024, 1024, 3]], dtype=tf.int32)
 
     model.provide_groundtruth(groundtruth_boxes_list=groundtruth_boxes_list,
                               groundtruth_classes_list=groundtruth_classes_list)

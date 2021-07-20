@@ -44,9 +44,11 @@ def training():
     # manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
     for epoch in range(num_epoch):
         train_loss = 0
+        num_batch = len(list_boxes)
         for batch, (image_batch, boxes_batch, class_batch) in enumerate(
                 zip(image_dataset, list_boxes, list_classes)):
             total_loss = train_step_fn(image_batch,
+                                       height, width,
                                        boxes_batch,
                                        class_batch,
                                        model,
