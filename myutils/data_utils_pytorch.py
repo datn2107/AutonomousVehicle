@@ -3,6 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.basename(__file__)))\
 
 import pandas
+import PIL
 from typing import Any, List, Callable, Tuple, Dict, Union, Optional
 from PIL import Image
 
@@ -15,10 +16,11 @@ from .data_utils import load_list_data
 
 ImageT = torch.Tensor
 TargetT = Dict[str, torch.Tensor]
+BBox = List[int]
 
 class ObjectDetectionDataset(torch.utils.data.Dataset):
-    def __init__(self, list_image_path: List[str], list_boxes: List[Any], list_classes: List[Any],
-                 transforms: Callable[[Any], torch.tensor]):
+    def __init__(self, list_image_path: List[str], list_boxes: List[List[BBox]], list_classes: List[List[int]],
+                 transforms: Callable[[PIL.Image], torch.tensor]):
         self.list_image_path = list_image_path
         self.list_boxes = list_boxes
         self.list_classes = list_classes
@@ -56,7 +58,7 @@ def collate_fn(batch: List[Tuple[ImageT, TargetT]]) -> Tuple[Tuple[ImageT, ...],
 def load_dataset(dataframe: pandas.DataFrame, folder_image_path: str, batch_size: int, shuffle: bool = True,
                  size: Optional[Union[int, tuple]] = None) -> DataLoader:
     (list_image_path, list_boxes, list_classes) = load_list_data(dataframe, folder_image_path,
-                                                                 label_off_set=0, norm=False)
+                                                                 label_off_set=0, norm_box=False)
 
     # As default, size = 1 is mean keep the original size of image
     transforms_ = transforms.ToTensor()

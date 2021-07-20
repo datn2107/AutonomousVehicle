@@ -66,7 +66,7 @@ def visualize_result(thresh_hold):
 
 	df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
 	(list_image_path, list_boxes, list_classes) = load_list_data(df_test, os.path.join(folder_image_path, "test"),
-																 label_off_set=0, norm=False)
+																 label_off_set=0, norm_box=False)
 	test_dataset = load_dataset(df_test, os.path.join(folder_image_path, 'test'), batch_size=1, shuffle=False)
 	model = load_model(model_name, checkpoint_path)
 
@@ -76,7 +76,7 @@ def visualize_result(thresh_hold):
 		loss = model(image[0].unsqueeze(0).to(device), target)
 		avg_loss = sum(val for val in loss.values())/len(loss.values())
 
-		if loss['loss_box_reg'] > 0.5:
+		if loss['loss_box_reg'] > 0.6:
 			image = np.array(Image.open(list_image_path[index]).convert('RGB'))
 			gt_image_path = list_image_path[index]
 			gt_list_box = list_boxes[index]

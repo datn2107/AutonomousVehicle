@@ -1,6 +1,5 @@
 models
-checkpoint_ssd_resnet50_tensorflow
-checkpoint_fasterrcnn_resmet50_pytorch
+../efficientdet_d4_coco17_tpu-32
 Test.py
 __pycache__
 .vscode
