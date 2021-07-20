@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import tensorflow as tf
 import pandas as pd
 
 # from mymodels.detection_utils_tensorflow import detect

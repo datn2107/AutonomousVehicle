@@ -25,7 +25,7 @@ class SSDModel():
     def load_optimizer(self):
         training_config = self.configs['train_config']
         optimizer_config = training_config.optimizer
-        self.optimizer = optimizer_builder.build(optimizer_config)
+        self.optimizer = optimizer_builder.build(optimizer_config)[0]
 
     def load_checkpoint(self, checkpoint_path, height, width, batch_size, initiation_model=True):
         if initiation_model:
