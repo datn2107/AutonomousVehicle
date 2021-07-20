@@ -54,7 +54,7 @@ def training():
                                        optimizer,
                                        fine_tune_layer)
             train_loss += total_loss.numpy()
-            num_batch += 1
+            num_batch = batch
             if batch % 5000 == 0 and batch != 0:
                 print('batch ' + str(batch)
                       + ', loss = ' + str(train_loss / batch), flush=True)
