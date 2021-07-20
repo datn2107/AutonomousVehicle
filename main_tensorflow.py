@@ -1,7 +1,6 @@
 import argparse
 import os
 
-import tensorflow as tf
 import pandas as pd
 
 # from mymodels.detection_utils_tensorflow import detect
@@ -44,7 +43,7 @@ def training():
     # manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
     for epoch in range(num_epoch):
         train_loss = 0
-        num_batch = len(list_boxes)
+        num_batch = 0
         for batch, (image_batch, boxes_batch, class_batch) in enumerate(
                 zip(image_dataset, list_boxes, list_classes)):
             total_loss = train_step_fn(image_batch,
@@ -55,7 +54,8 @@ def training():
                                        optimizer,
                                        fine_tune_layer)
             train_loss += total_loss.numpy()
-            if batch % 5000 == 0:
+            num_batch += 1
+            if batch % 5000 == 0 and batch != 0:
                 print('batch ' + str(batch)
                       + ', loss = ' + str(train_loss / batch), flush=True)
         # Display loss
@@ -85,15 +85,15 @@ def training():
 
 
 # def train():
-    # df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-    # (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
-    #                                                                         folder_image_path=os.path.join(
-    #                                                                             folder_image_path, 'test'),
-    #                                                                         height=height, width=width,
-    #                                                                         batch_size=1,
-    #                                                                         num_class=num_class)
-    #
-    # detection_by_lower_api(model, test_image_dataset)
+# df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+# (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
+#                                                                         folder_image_path=os.path.join(
+#                                                                             folder_image_path, 'test'),
+#                                                                         height=height, width=width,
+#                                                                         batch_size=1,
+#                                                                         num_class=num_class)
+#
+# detection_by_lower_api(model, test_image_dataset)
 
 
 if __name__ == "__main__":

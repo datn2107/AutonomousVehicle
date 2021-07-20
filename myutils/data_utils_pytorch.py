@@ -20,7 +20,7 @@ BBox = List[int]
 
 class ObjectDetectionDataset(torch.utils.data.Dataset):
     def __init__(self, list_image_path: List[str], list_boxes: List[List[BBox]], list_classes: List[List[int]],
-                 transforms: Callable[[PIL.Image], torch.tensor]):
+                 transforms: Callable[[PIL.Image.Image], torch.tensor]):
         self.list_image_path = list_image_path
         self.list_boxes = list_boxes
         self.list_classes = list_classes
