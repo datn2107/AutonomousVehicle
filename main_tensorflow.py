@@ -1,16 +1,14 @@
 import argparse
 import os
+import math
 
+import tensorflow as tf
 import pandas as pd
 
 # from mymodels.detection_utils_tensorflow import detect
 from mymodels.models_tensorflow import SSDModel
 from mytrain.train_tensorflow import train_step_fn
 from myutils.data_utils_tensorflow import load_dataset
-
-
-def load_model():
-    pass
 
 
 def split_list(lst, batch_size):
@@ -26,6 +24,7 @@ def training():
                                                              height=height, width=width,
                                                              batch_size=batch_size,
                                                              num_class=num_class)
+    num_batch = math.ceil(len(list_classes)/batch_size)
     list_boxes = split_list(list_boxes, batch_size)
     list_classes = split_list(list_classes, batch_size)
 
@@ -36,16 +35,16 @@ def training():
     fine_tune_layer = builder.get_fine_tune_layer(train_all=True)
     optimizer = builder.optimizer
     model = builder.model
+    
+    checkpoint = tf.train.Checkpoint(optimizer=optimizer, net=model)
+    manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
 
     # ''' Start Training'''
     print('Start fine-tuning!', flush=True)
-    # checkpoint = tf.train.Checkpoint()
-    # manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
     for epoch in range(num_epoch):
         train_loss = 0
-        num_batch = 0
-        for batch, (image_batch, boxes_batch, class_batch) in enumerate(
-                zip(image_dataset, list_boxes, list_classes)):
+        for batch, (boxes_batch, class_batch) in enumerate(
+                zip(list_boxes, list_classes)):
             total_loss = train_step_fn(image_batch,
                                        height, width,
                                        boxes_batch,
@@ -54,16 +53,13 @@ def training():
                                        optimizer,
                                        fine_tune_layer)
             train_loss += total_loss.numpy()
-            num_batch = batch
             if batch % 5000 == 0 and batch != 0:
                 print('batch ' + str(batch)
                       + ', loss = ' + str(train_loss / batch), flush=True)
-        # Display loss
         print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
               + ', train_loss=' + str(train_loss / num_batch), flush=True)
-        # Save path after each epoch
-        # save_path = manager.save()
-        # print('Save checkpoint at ' + save_path, flush=True)
+        save_path = manager.save()
+        print('Save checkpoint at ' + save_path, flush=True)
     print('Done fine-tuning!')
 
     return model
