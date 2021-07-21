@@ -25,8 +25,6 @@ def training():
                                                              batch_size=batch_size,
                                                              num_class=num_class)
     num_batch = math.ceil(len(list_classes)/batch_size)
-    list_boxes = split_list(list_boxes, batch_size)
-    list_classes = split_list(list_classes, batch_size)
 
     builder = SSDModel(model_config_path)
     builder.load_model(num_class)
@@ -43,8 +41,10 @@ def training():
     print('Start fine-tuning!', flush=True)
     for epoch in range(num_epoch):
         train_loss = 0
+        list_boxes_batch = split_list(list_boxes, batch_size)
+        list_classes_batch = split_list(list_classes, batch_size)
         for batch, (image_batch, boxes_batch, class_batch) in enumerate(
-                zip(image_dataset, list_boxes, list_classes)):
+                zip(image_dataset, list_boxes_batch, list_classes_batch)):
             total_loss = train_step_fn(image_batch,
                                        height, width,
                                        boxes_batch,
