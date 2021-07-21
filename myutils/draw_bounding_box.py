@@ -18,7 +18,7 @@ def plot_detection(image: numpy.array = None, image_path: str = None, boxes: Lis
     else:
         if image.shape[0] == 3:
             # convert to cv2 format if it in PIL format
-            image = np.multiply(np.array(np.moveaxis(image, 0, -1)), 255)
+            image = np.multiply(np.array(np.moveaxis(image, 0, -1)), 255).astype(int)
 
     for label, box in zip(classes, boxes):
         x_min = int(box[0])

@@ -47,3 +47,12 @@ def evaluate_loss(image_batch,
     total_loss = losses_dict['Loss/localization_loss'] + losses_dict['Loss/classification_loss']
 
     return total_loss
+
+@tf.function
+def detect(model, input_tensor):
+    preprocessed_image, shapes = model.preprocess(input_tensor)
+    prediction_dict = model.predict(preprocessed_image, shapes)
+
+    detections = model.postprocess(prediction_dict, shapes)
+
+    return detections

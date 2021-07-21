@@ -8,7 +8,10 @@ import tensorflow as tf
 # from mymodels.detection_utils_tensorflow import detect
 from mymodels.models_tensorflow import SSDModel
 from mytrain.train_tensorflow import train_step_fn
+from mytrain.train_tensorflow import detect
 from myutils.data_utils_tensorflow import load_dataset
+from myutils.draw_bounding_box import plot_detection
+from myutils.draw_bounding_box import plot_image
 
 
 # from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
@@ -66,30 +69,45 @@ def training():
     print('Done fine-tuning!')
 
 
-# def detection_by_lower_api(model, test_image_dataset):
-#     ''' Detection '''
-#     for image in test_image_dataset:
-#         detections = detect(model, image)
-#         detections_boxes = tf.squeeze(detections['detection_boxes']).numpy()
-#         detection_scores = tf.squeeze(detections['detection_scores']).numpy()
-#
-#         list_boxes = []
-#         for id in range(detection_scores.shape[0]):
-#             list_boxes.append(detections_boxes[id])
-#
-#         # visualize_detection(tf.squeeze(image).numpy(), list_boxes)
-#         break
+def detection(model, test_image_dataset):
+    ''' Detection '''
+    for image in test_image_dataset:
+        detections = detect(model, image)
+        detections_boxes = tf.squeeze(detections['detection_boxes']).numpy()
+        detection_classes = tf.squeeze(detections['detection_classes']).numpy()
+        detection_scores = tf.squeeze(detections['detection_scores']).numpy()
+        
+        print(detections_boxes)
+        print(detection_classes)
+        print(detection_scores)
+
+        boxes = []
+        classes = []
+        for id in range(detection_scores.shape[0]):
+            if detection_scores[id] > 0.0:
+                boxes.append(detections_boxes[id])
+                classes.append(detection_classes[id])
+
+        image = plot_detection(image=tf.squeeze(image).numpy(), boxes=boxes, classes=classes)
+        plot_image(image)
+        break
 
 
-# def train():
-# df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-# (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
-#                                                                         folder_image_path=os.path.join(
-#                                                                             folder_image_path, 'test'),
-#                                                                         height=height, width=width,
-#                                                                         batch_size=1,
-#                                                                         num_class=num_class)
-#
+def visualize():
+    df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+    (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
+                                                                            folder_image_path=os.path.join(
+                                                                                folder_image_path, 'test'),
+                                                                            height=height, width=width,
+                                                                            batch_size=1,
+                                                                            num_class=num_class)
+
+    builder = SSDModel(model_config_path)
+    builder.load_model(num_class)
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=True)
+    model = builder.model
+
+    detection(model, test_image_dataset)
 # detection_by_lower_api(model, test_image_dataset)
 
 
@@ -125,4 +143,4 @@ if __name__ == "__main__":
     num_class = 13
     num_epoch = 30
 
-    training()
+    visualize()
