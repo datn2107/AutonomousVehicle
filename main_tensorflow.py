@@ -35,7 +35,7 @@ def training():
     fine_tune_layer = builder.get_fine_tune_layer(train_all=True)
     optimizer = builder.optimizer
     model = builder.model
-    
+
     checkpoint = tf.train.Checkpoint(optimizer=optimizer, net=model)
     manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
 
@@ -43,8 +43,8 @@ def training():
     print('Start fine-tuning!', flush=True)
     for epoch in range(num_epoch):
         train_loss = 0
-        for batch, (boxes_batch, class_batch) in enumerate(
-                zip(list_boxes, list_classes)):
+        for batch, (image_batch, boxes_batch, class_batch) in enumerate(
+                zip(image_dataset, list_boxes, list_classes)):
             total_loss = train_step_fn(image_batch,
                                        height, width,
                                        boxes_batch,
