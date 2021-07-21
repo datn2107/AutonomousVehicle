@@ -37,7 +37,7 @@ class SSDModel():
                                                        _box_predictor=tmp_box_predictor_checkpoint)
             checkpoint = tf.train.Checkpoint(model=tmp_model_checkpoint)
         else:
-            checkpoint = tf.train.Checkpoint(model=self.model)
+            checkpoint = tf.train.Checkpoint(model=self.model, optimizer=self.optimizer)
         checkpoint.restore(tf.train.latest_checkpoint(checkpoint_path))
 
         tmp_image, tmp_shapes = self.model.preprocess(tf.zeros([batch_size, height, width, 3]))

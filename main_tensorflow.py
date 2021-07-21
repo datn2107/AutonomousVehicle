@@ -1,14 +1,17 @@
 import argparse
-import os
 import math
+import os
 
-import tensorflow as tf
 import pandas as pd
+import tensorflow as tf
 
 # from mymodels.detection_utils_tensorflow import detect
 from mymodels.models_tensorflow import SSDModel
 from mytrain.train_tensorflow import train_step_fn
 from myutils.data_utils_tensorflow import load_dataset
+
+
+# from tensorflow.python.tools.inspect_checkpoint import print_tensors_in_checkpoint_file
 
 
 def split_list(lst, batch_size):
@@ -24,20 +27,20 @@ def training():
                                                              height=height, width=width,
                                                              batch_size=batch_size,
                                                              num_class=num_class)
-    num_batch = math.ceil(len(list_classes)/batch_size)
+    num_batch = math.ceil(len(list_classes) / batch_size)
 
     builder = SSDModel(model_config_path)
     builder.load_model(num_class)
-    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=True)
     builder.load_optimizer()
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=True)
     fine_tune_layer = builder.get_fine_tune_layer(train_all=True)
     optimizer = builder.optimizer
     model = builder.model
 
-    checkpoint = tf.train.Checkpoint(optimizer=optimizer, net=model)
+    checkpoint = tf.train.Checkpoint(model=model, optimizer=optimizer)
     manager = tf.train.CheckpointManager(checkpoint, checkpoint_path, max_to_keep=3)
 
-    # ''' Start Training'''
+    ''' Start Training'''
     print('Start fine-tuning!', flush=True)
     for epoch in range(num_epoch):
         train_loss = 0
@@ -61,8 +64,6 @@ def training():
         save_path = manager.save()
         print('Save checkpoint at ' + save_path, flush=True)
     print('Done fine-tuning!')
-
-    return model
 
 
 # def detection_by_lower_api(model, test_image_dataset):
