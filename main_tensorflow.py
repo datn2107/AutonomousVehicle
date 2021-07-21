@@ -76,7 +76,7 @@ def detection(model, test_image_dataset):
         detections_boxes = tf.squeeze(detections['detection_boxes']).numpy()
         detection_classes = tf.squeeze(detections['detection_classes']).numpy()
         detection_scores = tf.squeeze(detections['detection_scores']).numpy()
-        
+
         print(detections_boxes)
         print(detection_classes)
         print(detection_scores)
@@ -104,7 +104,8 @@ def visualize():
 
     builder = SSDModel(model_config_path)
     builder.load_model(num_class)
-    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=True)
+    builder.load_optimizer()
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=False)
     model = builder.model
 
     detection(model, test_image_dataset)
@@ -143,4 +144,4 @@ if __name__ == "__main__":
     num_class = 13
     num_epoch = 30
 
-    visualize()
+    training()
