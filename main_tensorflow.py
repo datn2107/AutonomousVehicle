@@ -30,13 +30,13 @@ def training():
                                                              height=height, width=width,
                                                              batch_size=batch_size,
                                                              num_class=num_class,
-                                                             norm_box=True, norm_image=False)
+                                                             norm_box=True, norm_image=True)
     num_batch = math.ceil(len(list_classes) / batch_size)
 
     builder = SSDModel(model_config_path)
     builder.load_model(num_class)
     builder.load_optimizer()
-    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=True)
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size)
     fine_tune_layer = builder.get_fine_tune_layer(train_all=True)
     optimizer = builder.optimizer
     model = builder.model
@@ -101,12 +101,13 @@ def visualize():
                                                                                 folder_image_path, 'test'),
                                                                             height=height, width=width,
                                                                             batch_size=1,
-                                                                            num_class=num_class)
+                                                                            num_class=num_class,
+                                                                            norm_box=True, norm_image=True)
 
     builder = SSDModel(model_config_path)
     builder.load_model(num_class)
     builder.load_optimizer()
-    builder.load_checkpoint(checkpoint_path, height, width, batch_size, initiation_model=False)
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size)
     model = builder.model
 
     detection(model, test_image_dataset)

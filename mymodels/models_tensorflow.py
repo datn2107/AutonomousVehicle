@@ -27,8 +27,8 @@ class SSDModel():
         optimizer_config = training_config.optimizer
         self.optimizer = optimizer_builder.build(optimizer_config)[0]
 
-    def load_checkpoint(self, checkpoint_path, height, width, batch_size, initiation_model=True):
-        if initiation_model:
+    def load_checkpoint(self, checkpoint_path, height, width, batch_size):
+        if (tf.train.latest_checkpoint(checkpoint_path).split("-")[-1]) == 0:
             # only load box_predictor and feature_extractor part
             tmp_box_predictor_checkpoint = tf.train.Checkpoint(
                 _base_tower_layers_for_heads=self.model._box_predictor._base_tower_layers_for_heads,
@@ -42,7 +42,7 @@ class SSDModel():
 
         tmp_image, tmp_shapes = self.model.preprocess(tf.zeros([batch_size, height, width, 3]))
         tmp_prediction_dict = self.model.predict(tmp_image, tmp_shapes)
-        tmp_detections = self.model.postprocess(tmp_prediction_dict, tmp_shapes)
+        _ = self.model.postprocess(tmp_prediction_dict, tmp_shapes)
 
     def get_fine_tune_layer(self, train_all=False):
         to_fine_tune = []
