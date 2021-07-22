@@ -28,7 +28,7 @@ class SSDModel():
         self.optimizer = optimizer_builder.build(optimizer_config)[0]
 
     def load_checkpoint(self, checkpoint_path, height, width, batch_size):
-        if (tf.train.latest_checkpoint(checkpoint_path).split("-")[-1]) == 0:
+        if tf.train.latest_checkpoint(checkpoint_path).split("-")[-1] == '0':
             # only load box_predictor and feature_extractor part
             tmp_box_predictor_checkpoint = tf.train.Checkpoint(
                 _base_tower_layers_for_heads=self.model._box_predictor._base_tower_layers_for_heads,

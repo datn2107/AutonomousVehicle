@@ -2,6 +2,7 @@ import argparse
 import math
 import os
 
+import numpy as np
 import pandas as pd
 import tensorflow as tf
 
@@ -60,7 +61,7 @@ def training():
                                        optimizer,
                                        fine_tune_layer)
             train_loss += total_loss.numpy()
-            if batch % 5000 == 0 and batch != 0:
+            if batch % 1000 == 0 and batch != 0:
                 print('batch ' + str(batch)
                       + ', loss = ' + str(train_loss / batch), flush=True)
         print('epoch ' + str(epoch) + ' of ' + str(num_epoch)
