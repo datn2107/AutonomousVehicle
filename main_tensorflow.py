@@ -31,7 +31,7 @@ def training():
                                                              height=height, width=width,
                                                              batch_size=batch_size,
                                                              num_class=num_class,
-                                                             norm_box=True, norm_image=True)
+                                                             norm_box=True, norm_image=False)
     num_batch = math.ceil(len(list_classes) / batch_size)
 
     builder = SSDModel(model_config_path)
@@ -71,7 +71,22 @@ def training():
     print('Done fine-tuning!')
 
 
-def detection(model, test_image_dataset):
+def visualize():
+    df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
+    (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
+                                                                            folder_image_path=os.path.join(
+                                                                                folder_image_path, 'test'),
+                                                                            height=height, width=width,
+                                                                            batch_size=1,
+                                                                            num_class=num_class,
+                                                                            norm_box=True, norm_image=False)
+
+    builder = SSDModel(model_config_path)
+    builder.load_model(num_class)
+    builder.load_optimizer()
+    builder.load_checkpoint(checkpoint_path, height, width, batch_size)
+    model = builder.model
+
     ''' Detection '''
     for image in test_image_dataset:
         detections = detect(model, image)
@@ -93,26 +108,7 @@ def detection(model, test_image_dataset):
         image = plot_detection(image=tf.squeeze(image).numpy(), boxes=boxes, classes=classes)
         plot_image(image)
         break
-
-
-def visualize():
-    df_test = pd.read_csv(os.path.join(folder_label_path, 'test.csv'))
-    (test_image_dataset, test_list_boxes, test_list_classes) = load_dataset(dataframe=df_test,
-                                                                            folder_image_path=os.path.join(
-                                                                                folder_image_path, 'test'),
-                                                                            height=height, width=width,
-                                                                            batch_size=1,
-                                                                            num_class=num_class,
-                                                                            norm_box=True, norm_image=True)
-
-    builder = SSDModel(model_config_path)
-    builder.load_model(num_class)
-    builder.load_optimizer()
-    builder.load_checkpoint(checkpoint_path, height, width, batch_size)
-    model = builder.model
-
-    detection(model, test_image_dataset)
-# detection_by_lower_api(model, test_image_dataset)
+    # detection_by_lower_api(model, test_image_dataset)
 
 
 if __name__ == "__main__":
