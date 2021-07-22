@@ -29,7 +29,8 @@ def training():
                                                                  folder_image_path, 'train'),
                                                              height=height, width=width,
                                                              batch_size=batch_size,
-                                                             num_class=num_class)
+                                                             num_class=num_class,
+                                                             norm_box=True, norm_image=False)
     num_batch = math.ceil(len(list_classes) / batch_size)
 
     builder = SSDModel(model_config_path)
