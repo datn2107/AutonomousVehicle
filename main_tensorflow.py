@@ -129,7 +129,7 @@ if __name__ == "__main__":
     # Model checkpoint path
     parser.add_argument('--checkpoint', type=str, help='Number class of each object')
     parser.set_defaults(
-        checkpoint=r'D:\Machine Learning Project\Autonomous Driving\efficientdet_d4_coco17_tpu-32\checkpoint')
+        checkpoint=r'D:\Machine Learning Project\Autonomous Driving\efficientdet_d4_coco17_tpu-32\checkpoint_')
 
     args = parser.parse_args()
     folder_image_path = args.images
@@ -143,4 +143,4 @@ if __name__ == "__main__":
     num_class = 13
     num_epoch = 30
 
-    training()
+    visualize()

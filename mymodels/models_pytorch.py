@@ -9,6 +9,14 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from vision.torchvision.models.detection import ssd
 
 
+def faster_rcnn_mobilenetv3_large_fpn(num_class: int) -> nn.Module:
+    model = torchvision.models.detection.fasterrcnn_mobilenet_v3_large_fpn(pretrained=True, trainable_backbone_layers=5)
+    input_features = model.roi_heads.box_predictor.cls_score.in_features
+    model.roi_heads.box_predictor = FastRCNNPredictor(input_features, num_class + 1)
+
+    return model
+
+
 def faster_rcnn(num_class: int) -> nn.Module:
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True, trainable_backbone_layers=5)
     input_features = model.roi_heads.box_predictor.cls_score.in_features
@@ -26,6 +34,7 @@ def ssd300_vgg16(num_class: int) -> nn.Module:
 
 
 LIST_MODEL = {'faster_rcnn': faster_rcnn(num_class=13),
+              'faster_rcnn_mobilenetv3': faster_rcnn_mobilenetv3_large_fpn(num_class=13),
 			  'ssd': ssd300_vgg16(num_class=13)}
 DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 

@@ -127,6 +127,9 @@ if __name__ == '__main__':
 	# Select Model
 	parser.add_argument('--model', type=str, help='Model you want to use')
 	parser.set_defaults(model=r'faster_rcnn')
+	# faster_rcnn
+	# faster_rcnn_mobilenetv3
+	# ssd
 
 
 	args = parser.parse_args()
