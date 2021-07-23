@@ -49,6 +49,10 @@ def train():
 	epochs = 40
 	optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
+	if not os.listdir(checkpoint_dir):
+		start_epoch = 0
+	else
+		start_epoch = int(re.findall(r'\d+', checkpoint_path)[-1]) + 1
 	## Training
 	for epoch in range(start_epoch, epochs):
 		print(f"Epoch {epoch}\n-------------------------------")
